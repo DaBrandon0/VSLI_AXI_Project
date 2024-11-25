@@ -1,0 +1,5 @@
+Current State,CarDetected,Next State,LightState,TimerExpired
+RED,0,RED,0,0
+RED,1,GREEN,1,0
+GREEN,0,YELLOW,2,1
+YELLOW,0,RED,0,1

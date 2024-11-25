@@ -1,0 +1,8 @@
+// overwrite timescale (comment out if you do not want)
+// -timescale=1ns/10ps
+
+// -v with Verilog or SystemVerilog files
+-v
+// List your files here -------------
+example.v
+test.v
