@@ -43,7 +43,7 @@ module WriteSlave
 
     always@(posedge ACLK)
     begin
-        if(ARESETn)
+        if(!ARESETn)
             state <= 0;
         else
             state <= nstate;
