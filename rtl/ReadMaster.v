@@ -80,7 +80,7 @@ always @(posedge devclock_in or negedge ARESETn)begin
 end
 
 reg [1:0] state, nstate;
-localparam reset = 2'b00
+localparam reset = 2'b00;
 localparam wait_transaction = 2'b01;
 localparam wait_ready = 2'b10;
 localparam wait_data = 2'b11;
