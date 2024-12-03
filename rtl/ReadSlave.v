@@ -25,7 +25,7 @@ module ReadSlave
     //READ DATA CHANNEL SIGNALS
     output reg [TagBits-1:0]    RID,       //read ID from slave. must match ARID from master
     output reg [BusWidth - 1:0] RDATA,     //read data from SLAVE. 
-    output reg [1:0]            RESP,     //read response from slave. TODO: not implemented yet. deals with PROT and other read stuff. 
+    output reg [1:0]            RRESP,     //read response from slave. TODO: not implemented yet. deals with PROT and other read stuff. 
     output reg                  RLAST,            //Last transfer signal from Slave
 
     output reg RVALID,           //RDATA from slave is valid
@@ -58,7 +58,8 @@ localparam reset = 2'b00;
 localparam wait_master = 2'b01;
 localparam wait_last = 2'b10;
 
-// AR Handshake
+// AR Channel State Machine
+//edging
 always @(posedge ACLK or negedge ARESETn)begin
   if(ARESETn)begin
     AR_state <= reset;
@@ -67,8 +68,7 @@ always @(posedge ACLK or negedge ARESETn)begin
     AR_state <= AR_nstate;
   end 
 end
-
-//AR channel latching timing
+//comb
 always @(*)begin
   case(AR_state)
     reset:begin
@@ -80,7 +80,7 @@ always @(*)begin
       LOCK = 0;
       CACHE = 0;
       PROT = 0;
-      ARREADY = 0;
+      ARREADY = 1;
       AR_nstate = 0;
     end
     wait_master:begin
@@ -145,7 +145,7 @@ always @(*) begin
       address_out = 0;
       RID = 0;
       RDATA = 0;
-      RESP = 0;
+      RRESP = 0;
       RLAST = 0;
       RVALID = 0;
       devread = 0;
@@ -263,7 +263,7 @@ always @(*) begin
       address_out = 0;
       RID = 0;
       RDATA = 0;
-      RESP = 0;
+      RRESP = 0;
       RLAST = 0;
       RVALID = 0;
       devread = 0;

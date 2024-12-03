@@ -116,6 +116,7 @@ always @(*) begin
             end 
             1: begin
                 ARVALID = 1;
+                transaction_began = 1;
                 nstate = wait_ready;
             end
             default: begin 
