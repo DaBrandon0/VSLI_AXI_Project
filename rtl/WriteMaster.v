@@ -12,7 +12,6 @@ module WriteMaster
     output reg BREADY,
     //Device signals
     input [buswidth-1:0] Datain,
-    input [buswidth-1:0] Addressin,
     input memoryWrite,
     input devclock,
     input [31:0] WADDR,
@@ -47,8 +46,8 @@ module WriteMaster
     reg sent;
     reg [buswidth-1:0] fifodata [15:0];
     reg [4:0] fifosize;
-    reg removed;
     reg once;
+    reg once2;
     always@(posedge devclock)
     begin
         if(!ARESETn)
@@ -62,10 +61,14 @@ module WriteMaster
             AWLOCK <= 0;
             AWCACHE <= 0;
             AWPROT <= 0;
+            once2 <= 0;
+            sent <= 0;
         end
         else
         begin
-            if(memoryWrite)
+            if(!memoryWrite)
+                once2 <= 0;
+            if(memoryWrite && !once2)
             begin
                 fifodata[fifosize] <= Datain;
                 fifosize <= fifosize + 1;
@@ -80,6 +83,7 @@ module WriteMaster
                 AWCACHE <= WCACHE;
                 AWPROT <= WPROT;
                 end
+                once2 <= 1;
             end
             if(sent)
             begin
@@ -89,8 +93,8 @@ module WriteMaster
                 for (i = 0; i < 15; i = i + 1)
                     fifodata[i] <= fifodata[i+1];
                 end
-                once <= !sent;
             end
+            once <= sent;
         end
     end
 
@@ -111,14 +115,24 @@ module WriteMaster
     begin
         if(!ARESETn)
             transcount <= 0;
+        else if(state == 0)
+            transcount <= 0;
         else if(WVALID&&WREADY)
             transcount <= transcount + 1;
+        
     end
 
     always@(*)
     begin
         if(!ARESETn)
-            state <= 0;
+        begin
+            state = 0;
+            AWVALID = 0;
+            WVALID = 0;
+            WLAST = 0;
+            BREADY = 0;
+            response = 2'bZZ;
+        end
         else
         begin
         AWVALID = 0;
@@ -136,7 +150,8 @@ module WriteMaster
             if (AWVALID && AWREADY)
             begin
                 nstate = 1;
-                AWVALID = 0;
+                //AWVALID = 0;
+                WDATA = fifodata[0];
                 sent = 1;
             end
             else
@@ -145,7 +160,6 @@ module WriteMaster
         4'd1:
         begin
             BREADY = 1;
-            WDATA = fifodata[0];
             WVALID = 1;
             if(transcount == WLEN)
             begin
@@ -160,13 +174,13 @@ module WriteMaster
             if(BVALID)
             begin
                 response = BRESP;
-                BREADY = 1;
+                BREADY = 0;
                 nstate = 0;
             end
             else
             begin
                 nstate = 2;
-                BREADY = 0;
+                BREADY = 1;
             end
         end
         endcase
