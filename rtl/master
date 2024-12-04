@@ -1,0 +1,8 @@
+-sverilog
+-v
+
+// sources
+interconnect.v
+
+// testbench
+tb_interconnect.v
