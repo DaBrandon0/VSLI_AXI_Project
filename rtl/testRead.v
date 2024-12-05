@@ -1,12 +1,9 @@
 module testRead();
 localparam buswidth = 32;
-localparam tagbits = 4;
 //inputs to master from device
 reg                 ACLK;
 reg                 ARESETn;
-reg                 devclock_in;
 reg [buswidth-1:0]  address_in;
-reg                 memoryRead_in;
 reg [3:0]           len_in;
 reg [1:0]           size_in;
 reg [1:0]           burst_i;
@@ -18,7 +15,7 @@ wire [buswidth-1: 0] data_out;
 //outputs from slave to device
 wire [buswidth-1 : 0] address_out;
 wire                    devread;
-wire [buswidth-1:0] data_in;
+reg [buswidth-1:0] data_in;
 
 //Master AR wires
 wire [tagbits-1: 0]  ARID;
@@ -42,29 +39,45 @@ wire RREADY;
 wire ARVALID;
 wire ARREADY;
 
+//FIFO testbench signals
+reg fifo_write_en[0:1];
+reg [49:0] AR_fifo_in[0:1];
+
 always #5 ACLK = ~ACLK;
 always #10 devclock_in = ~devclock_in;
 
 initial begin
-    ACLK = 0;
+    ACLK = 1;
+    devclock_in = 1;
     ARESETn = 0;
-    devclock_in = 0;
     address_in = 32'b0;
-    memoryRead_in = 1;
     len_in = 1;
     size_in = 1;
     burst_i = 1;
     lock_in = 1;
     cache_in = 1;
     prot_in = 1;
+    data_in = 32'hffffffff;
     //access 1
     #8;
     ARESETn = 1;
-    #22;
+    #2;
+    #10;
+    memoryRead_in = 1;
+    #20;
     memoryRead_in = 0;
-    #500;
+    #50;
     $stop;
 end
+
+//things to test
+//1-4 transfers
+//1-4 bytes
+//
+//1. fixed reading
+//2. incr reading
+//3. wrapped reading
+
 
 ReadMaster readmaster(
 .ACLK(ACLK),
