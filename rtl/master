@@ -1,8 +1,11 @@
--sverilog
 -v
 
 // sources
-interconnect.v
+// interconnect.v
+fifo.v
+addr_decode.v
+read_arbiter.v
 
 // testbench
-tb_interconnect.v
+// tb_interconnect.v
+tb_read_arbiter.v

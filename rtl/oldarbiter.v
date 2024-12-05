@@ -1,7 +1,7 @@
 `define M 2
 `define S 2
 
-module arbiter #(
+module read_arbiter #(
     parameter NUM_OUTSTANDING_TRANS = 4,
     parameter ID_WIDTH = 4,
     parameter ADDR_WIDTH = 32
