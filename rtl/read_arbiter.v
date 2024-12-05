@@ -18,7 +18,6 @@ module read_arbiter #(
 
     // read data channel signals
     input [(M*1)-1:0] R_request_f,
-    input [(M*ADDR_WIDTH)-1:0] R_addr_f,
     input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] R_id_f,
     input [(M*1)-1:0] R_last_f,
     output [(M*1)-1:0] R_grant_f,
@@ -35,7 +34,6 @@ module read_arbiter #(
     wire [$clog2(S)-1:0] AR_sel [M-1:0];
 
     wire [1-1:0] R_request [M-1:0];
-    wire [ADDR_WIDTH-1:0] R_addr [M-1:0];
     wire [$clog2(M)-1:0] R_master_id [M-1:0];
     wire [$clog2(NUM_OUTSTANDING_TRANS)-1:0] R_transaction_id [M-1:0];
     wire [1-1:0] R_last [M-1:0];
@@ -51,14 +49,13 @@ module read_arbiter #(
             assign AR_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AR_sel[i];
 
             assign R_request[i] = R_request_f[i];
-            assign R_addr[i] = R_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
             assign R_master_id[i] = R_id_f[(i+1)*($clog2(M) + $clog2(NUM_OUTSTANDING_TRANS)) - 1 :
                                             (i+1)*$clog2(NUM_OUTSTANDING_TRANS)];
             assign R_transaction_id[i] = R_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS) - 1 :
                                                 i*$clog2(NUM_OUTSTANDING_TRANS)];
             assign R_last[i] = R_last_f[i];
             assign R_grant_f[i] = R_grant[i];
-            assign R_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = R_sel[i];
+            assign R_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = R_master_id[i];
         end
     endgenerate
 

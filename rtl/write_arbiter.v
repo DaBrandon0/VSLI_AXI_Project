@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module read_arbiter #(
+module write_arbiter #(
     parameter M = 2,
     parameter S = 2,
     parameter NUM_OUTSTANDING_TRANS = 2,
@@ -9,56 +9,57 @@ module read_arbiter #(
     input clk,
     input clr,
 
-    // read address channel signals
-    input [(M*1)-1:0] AW_request_f,
+    // write address channel signals
+    input [(M*1)-1:0] AW_valid_f,
     input [(M*ADDR_WIDTH)-1:0] AW_addr_f,
     input [(M*$clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id_f,
     output [(M*1)-1:0] AW_grant_f,
     output [(M*$clog2(S))-1:0] AW_sel_f,
 
-    // read data channel signals
-    input [(M*1)-1:0] AW_request_f,
-    input [(M*ADDR_WIDTH)-1:0] AW_addr_f,
-    input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] AW_id_f,
-    input [(M*1)-1:0] AW_last_f,
-    output [(M*1)-1:0] AW_grant_f,
-    output [(M*$clog2(S))-1:0] AW_sel_f
+    // write data/response channel signals
+    input [(M*1)-1:0] B_ready_f,
+    input [(M*($clog2(NUM_OUTSTANDING_TRANS)))-1:0] W_id_f,
+    input [(S*1)-1:0] B_valid_f,
+    output [(M*1)-1:0] W_grant_f,
+    output [(S*1)-1:0] B_grant_f,
+    output [(M*$clog2(S))-1:0] W_sel_f,
+    output [(S*$clog2(M))-1:0] B_sel_f
 );
     genvar i, j;
     integer x, y;
 
     // unflatten signals
-    wire [1-1:0] AW_request [M-1:0];
+    wire [1-1:0] AW_valid [M-1:0];
     wire [ADDR_WIDTH-1:0] AW_addr [M-1:0];
     wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id [M-1:0];
     reg [1-1:0] AW_grant [M-1:0];
     wire [$clog2(S)-1:0] AW_sel [M-1:0];
 
-    wire [1-1:0] AW_request [M-1:0];
-    wire [ADDR_WIDTH-1:0] AW_addr [M-1:0];
-    wire [$clog2(M)-1:0] AW_master_id [M-1:0];
-    wire [$clog2(NUM_OUTSTANDING_TRANS)-1:0] AW_transaction_id [M-1:0];
-    wire [1-1:0] AW_last [M-1:0];
-    reg [1-1:0] AW_grant [M-1:0];
-    wire [$clog2(S)-1:0] AW_sel [M-1:0];
+    wire [(M*1)-1:0] B_ready [M-1:0];
+    wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] W_id [M-1:0];
+    wire [(S*1)-1:0] B_valid [S-1:0];
+    reg [(M*1)-1:0] W_grant [M-1:0];
+    reg [(S*1)-1:0] B_grant [S-1:0];
+    reg [(M*$clog2(S))-1:0] W_sel [M-1:0];
+    reg [(S*$clog2(M))-1:0] B_sel [S-1:0];
 
     generate
-        for (i = 0; i < M; i = i + 1) begin : UNFLATTEN
-            assign AW_request[i] = AW_request_f[i];
+        for (i = 0; i < M; i = i + 1) begin : UNFLATTEN_M
+            assign AW_valid[i] = AW_valid_f[i];
             assign AW_addr[i] = AW_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
             assign AW_id[i] = AW_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
             assign AW_grant_f[i] = AW_grant[i];
             assign AW_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AW_sel[i];
 
-            assign AW_request[i] = AW_request_f[i];
-            assign AW_addr[i] = AW_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
-            assign AW_master_id[i] = AW_id_f[(i+1)*($clog2(M) + $clog2(NUM_OUTSTANDING_TRANS)) - 1 :
-                                            (i+1)*$clog2(NUM_OUTSTANDING_TRANS)];
-            assign AW_transaction_id[i] = AW_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS) - 1 :
-                                                i*$clog2(NUM_OUTSTANDING_TRANS)];
-            assign AW_last[i] = AW_last_f[i];
-            assign AW_grant_f[i] = AW_grant[i];
-            assign AW_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AW_sel[i];
+            assign B_ready[i] = B_ready_f[i];
+            assign W_id[i] = W_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
+            assign W_grant_f[i] = W_grant[i];
+            assign W_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = W_sel[i];
+        end
+        for (i = 0; i < M; i = i + 1) begin : UNFLATTEN_S
+            assign B_valid[i] = B_valid_f[i];
+            assign B_grant_f[i] = B_grant[i];
+            assign B_sel_f[(i+1)*$clog2(M)-1:i*$clog2(M)] = B_sel[i];
         end
     endgenerate
 
@@ -108,7 +109,7 @@ module read_arbiter #(
         end
     endgenerate
 
-    // read address channel arbiter
+    // write address channel arbiter
     reg [$clog2(M)-1:0] AW_sender;
     reg [2-1:0] AW_curr_state, AW_next_state;
 
@@ -125,13 +126,13 @@ module read_arbiter #(
 
             case (AW_curr_state)
                 AW_IDLE: begin
-                    if (!(AW_request[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]])) begin
+                    if (AW_next_state == AW_IDLE) begin
                         AW_sender <= (AW_sender + 1) % M;
                     end
                 end
 
                 AW_ALLOW: begin
-                    if (!(AW_request[AW_sender])) begin
+                    if (AW_next_state == AW_IDLE) begin
                         AW_sender <= (AW_sender + 1) % M;
                     end
                 end
@@ -153,7 +154,7 @@ module read_arbiter #(
                     end
                 end
 
-                if (AW_request[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]]) begin
+                if (AW_valid[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]]) begin
                     AW_next_state = AW_REGISTER;
                 end else begin
                     AW_next_state = AW_IDLE;
@@ -192,7 +193,7 @@ module read_arbiter #(
                     end
                 end
 
-                if (!AW_request[AW_sender]) begin
+                if (!AW_valid[AW_sender]) begin
                     AW_next_state = AW_IDLE;
                 end else begin
                     AW_next_state = AW_ALLOW;
@@ -201,33 +202,37 @@ module read_arbiter #(
         endcase
     end
 
-    // read data channel arbiter
-    reg [$clog2(S)-1:0] AW_sender;
-    reg [2-1:0] AW_curr_state, AW_next_state;
+    // write data/response channel arbiter
+    reg [$clog2(M)-1:0] W_sender;
+    reg [$clog2(S)-1:0] W_receiver;
+    reg [2-1:0] W_curr_state, W_next_state;
 
-    localparam AW_IDLE     = 0;
-    localparam AW_UNREGISTER = 1;
-    localparam AW_ALLOW    = 2;
+    localparam W_IDLE       = 0;
+    localparam W_UNREGISTER = 1;
+    localparam W_ALLOW    = 2;
 
     always @(posedge clk or negedge clr) begin
         if (!clr) begin
-            AW_curr_state <= AW_IDLE;
-            AW_sender <= 0;
+            W_curr_state <= W_IDLE;
+            W_sender <= 0;
+            W_receiver <= 0;
         end else begin
-            AW_curr_state <= AW_next_state;
+            W_curr_state <= W_next_state;
 
-            case (AW_curr_state)
-                AW_IDLE: begin
-                    if (!(AW_request[AW_sender] &&
-                        !ID_fifo_empty[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] &&
-                        ID_fifo_head[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] == AW_sender)) begin
-                        AW_sender <= (AW_sender + 1) % S;
+            case (W_curr_state)
+                W_IDLE: begin
+                    if (W_next_state == W_IDLE) begin
+                        W_sender <= (W_sender + 1) % M;
                     end
                 end
 
-                AW_ALLOW: begin
-                    if (AW_last[AW_sender]) begin
-                        AW_sender <= (AW_sender + 1) % S;
+                W_UNREGISTER: begin
+                    W_receiver <= ID_fifo_head[W_sender][W_id[W_sender]];
+                end
+
+                W_ALLOW: begin
+                    if (W_next_state == W_IDLE) begin
+                        W_sender <= (W_sender + 1) % M;
                     end
                 end
             endcase
@@ -235,11 +240,18 @@ module read_arbiter #(
     end
 
     always @(*) begin
-        case (AW_curr_state)
-            AW_IDLE: begin
+        case (W_curr_state)
+            W_IDLE: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
+                    W_grant[x] = 0;
+                    W_sel[x] = 0;
                 end
+
+                for (x = 0; x < S; x = x + 1) begin
+                    B_grant[x] = 0;
+                    B_sel[x] = 0;
+                end
+
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
                     for (y = 0; y < M; y = y + 1) begin
@@ -247,19 +259,26 @@ module read_arbiter #(
                     end
                 end
 
-                if (AW_request[AW_sender] &&
-                    !ID_fifo_empty[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] &&
-                    ID_fifo_head[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] == AW_sender) begin
-                    AW_next_state = AW_UNREGISTER;
+                if (B_ready[W_sender] &&
+                    !ID_fifo_empty[W_sender][W_id[W_sender]] &&
+                    ID_fifo_head[W_sender][W_id[W_sender]] == W_sender) begin
+                    W_next_state = W_UNREGISTER;
                 end else begin
-                    AW_next_state = AW_IDLE;
+                    W_next_state = W_IDLE;
                 end
             end
 
-            AW_UNREGISTER: begin
+            W_UNREGISTER: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
+                    W_grant[x] = 0;
+                    W_sel[x] = 0;
                 end
+
+                for (x = 0; x < S; x = x + 1) begin
+                    B_grant[x] = 0;
+                    B_sel[x] = 0;
+                end
+
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
                     for (y = 0; y < M; y = y + 1) begin
@@ -267,17 +286,27 @@ module read_arbiter #(
                     end
                 end
 
-                ID_fifo_read_en[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] = 1;
+                ID_fifo_read_en[W_sender][W_id[W_sender]] = 1;
 
-                AW_next_state = AW_ALLOW;
+                W_next_state = W_ALLOW;
             end
 
-            AW_ALLOW: begin
+            W_ALLOW: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
+                    W_grant[x] = 0;
+                    W_sel[x] = 0;
                 end
 
-                AW_grant[AW_sender] = 1;
+                for (x = 0; x < S; x = x + 1) begin
+                    B_grant[x] = 0;
+                    B_sel[x] = 0;
+                end
+
+                W_grant[W_sender] = 1;
+                B_grant[W_receiver] = 1;
+
+                W_sel[W_sender] = W_receiver;
+                B_sel[W_receiver] = W_sender;
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
                     for (y = 0; y < M; y = y + 1) begin
@@ -285,10 +314,10 @@ module read_arbiter #(
                     end
                 end
 
-                if (AW_last[AW_sender]) begin
-                    AW_next_state = AW_IDLE;
+                if (B_valid[W_sender]) begin
+                    W_next_state = W_IDLE;
                 end else begin
-                    AW_next_state = AW_ALLOW;
+                    W_next_state = W_ALLOW;
                 end
             end
         endcase
