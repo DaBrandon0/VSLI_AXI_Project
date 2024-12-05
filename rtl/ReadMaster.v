@@ -10,7 +10,6 @@ module ReadMaster
     input [48 + tagbits:0] AR_fifo0_in,
     input [48 + tagbits:0] AR_fifo1_in,
     //data output from master to show received value
-    output reg [BusWidth-1 : 0] data_out, //showing debug showing value of bus. 
     //READ ADDRESS CHANNEL SIGNALS
     output reg [tagbits-1:0]    ARID,     //ID of transaction for this start read addr and control signals
     output reg [BusWidth-1 : 0] ARADDR,   //start read address of a read burst transaction. 
@@ -45,7 +44,7 @@ fifo fifo_2(ACLK, ARESETn,fifo1_write, fifo_read[1], AR_fifo1_in, AR_fifo_out[1]
 
 //--------------AR CHANNEL STATE MACHINE -------------------------------------------
 
-reg [2:0] AR_state, AR_nstate;
+reg [1:0] AR_state, AR_nstate;
 always @(posedge ACLK or negedge ARESETn)begin
     if(!ARESETn)begin
         AR_state <= 0;
@@ -55,11 +54,10 @@ always @(posedge ACLK or negedge ARESETn)begin
     end
 end
 
-localparam reset =       3'b000;
-localparam check_fifo0 = 3'b001;
-localparam check_fifo1 = 3'b010;
-localparam ar_valid =    3'b011;
-localparam extra_hold=   3'b100;
+localparam reset =       2'b00;
+localparam check_fifo0 = 2'b01;
+localparam check_fifo1 = 2'b10;
+localparam ar_valid =    2'b11;
 
 always @(*)begin
     case(AR_state)
@@ -137,127 +135,36 @@ always @(*)begin
            AR_nstate = ar_valid;
         end
     end
-    // extra_hold:begin
-    //     if(fifo_index) //coming from fifo1
-    //         AR_nstate = check_fifo0;
-    //     else           //coming from fifo0
-    //         AR_nstate = check_fifo1;
-    // end
+    default: begin
+        ARID = 0;    
+        ARADDR = 0;  
+        ARLEN = 0;   
+        ARSIZE = 0;  
+        ARBURST = 0; 
+        ARLOCK = 0;  
+        ARCACHE = 0; 
+        ARPROT = 0;  
+
+        ARVALID = 0;
+        fifo_index = 0;
+        fifo_read[0] = 0;
+        fifo_read[1] = 0;
+        AR_nstate = check_fifo0;
+    end
     endcase
 end
 
 
-
-
-// reg [1:0] state, nstate;
-// localparam reset = 2'b00;
-// localparam wait_transaction = 2'b01;
-// localparam wait_ready = 2'b10;
-// localparam wait_data = 2'b11;
-
-// always @(posedge ACLK or negedge ARESETn) begin
-//     if(!ARESETn)begin
-//         state <= reset;
-//     end
-//     else begin
-//         state <= nstate;
-//     end
-// end
-
-// always @(*) begin
-//     case (state)
-//     reset: begin
-//         ARVALID = 0; //11-1 protocol spec sheet`
-//         RREADY = 0;
-//         nstate = wait_transaction;
-//         transaction_began = 0;
-//         data_out = 0;
-//     end
-//     wait_transaction : begin
-//         //if aew transaction comes in (new ID, ADDR, or Controls)
-//             //ARValid <= 1, 
-//             //latch ID, ADDR, and CONTROL signals to send to slave
-//             //go to await ready
-//         //else, things stay here and await for new transaction
-//         case(begin_transaction)
-//             0: begin
-//                 ARVALID = 0;
-//                 nstate = wait_transaction;
-//             end 
-//             1: begin
-//                 ARVALID = 1;
-//                 transaction_began = 1;
-//                 nstate = wait_ready;
-//             end
-//             default: begin 
-//                 ARVALID = 0; 
-//                 nstate = wait_transaction; 
-//             end
-//         endcase
-//     end
-//     wait_ready: begin
-//         //if(!ARREADY)
-//             //idle in this state. Slave has not accepted Read Address signals yet
-//         //else if(ARREADY)
-//             //ARValid <= 0;, ID, ADDR, Controls can now be changed. RREADY <= 1;
-//             //go to await data
-//         case (ARREADY)
-//             0: begin
-//                 //do nothing and wait for ARREADY
-//                 ARVALID = 1;
-//                 nstate = wait_ready;
-//                 RREADY = 1;
-//             end
-//             1: begin
-//                 ARVALID = 0;
-//                 nstate = wait_data;
-//                 RREADY = 1;
-//             end
-//         endcase
-//     end
-//     wait_data: begin
-//         if(!RLAST)begin
-//             if(RVALID)begin
-//                 RREADY = 1;
-//                 nstate = wait_data;
-//                 data_out = RDATA;
-//             end
-//             else begin
-//                 RREADY = 1;
-//                 nstate = wait_data;
-//             end    
-//         end
-//         else begin
-//             data_out = RDATA;
-//             RREADY = 0;
-//             nstate = wait_transaction;
-//         end
-//         //if(!RVALID)
-//             //slave have not sent data over yet. just wait
-//         //else if(RVALID && RLAST)
-//             //last piece of data received. latch it whereever we need and this transaction is finished.
-//             //go back to await transaction
-//         //else if(RVALID && !RLAST)
-//             //still waiting for transfering to finish
-//             //latch read data as needed to somewhere TODO
-//             //RREADY <= 1; //ready for next piece of data.
-//     end
-//     default:begin
-//         ARVALID = 0; //11-1 protocol spec sheet`
-//         RREADY = 0;
-//         nstate = wait_transaction;
-//         transaction_began = 0;
-//     end
-//     endcase
-// end
-
-
-
-
-
-
-
-
+// for our situation, don't really need to do anything except tie RREADY to high
+//--------------R CHANNEL STATE MACHINE -------------------------------------------
+always@(posedge ACLK or negedge ARESETn)begin
+    if(!ARESETn)begin
+        RREADY <= 1;
+    end
+    else begin
+        RREADY <= 1;
+    end
+end
 
 
 endmodule

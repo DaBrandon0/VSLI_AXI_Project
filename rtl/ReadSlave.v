@@ -6,7 +6,7 @@ module ReadSlave
     input ARESETn,          //active low reset
     //Device signals
     output reg [BusWidth-1 : 0] address_out,
-    output reg devread,
+    output reg memread,
     input [BusWidth-1 : 0] data_in, //TODO: 
     //AR Channel Signals
     input [tagbits-1:0] ARID,     //ID of transaction for this start read addr and control signals
@@ -107,7 +107,166 @@ always @(*)begin
       end
     end
   endcase
+  
 end
+
+
+//R data Channel FSM here------------------------------------------------------
+
+reg[2:0] R_state, R_nstate;
+localparam R_reset = 3'd0;
+localparam R_Idle = 3'd1;
+localparam read_mem = 3'd2;
+localparam send_data = 3'd3;
+localparam r_valid = 3'd4;
+
+always @(posedge ACLK or negedge ARESETn)begin
+  if(!ARESETn)begin
+    R_state <= R_reset;
+  end
+  else begin
+    R_state <= R_nstate;
+  end
+end
+
+
+reg [2:0] count, ncount;
+reg [31:0] temp_data;
+reg [31:0] new_address;
+reg [1:0] fifo_index, fifo_nindex;
+integer j;
+always @(*)begin
+  case(R_state)
+    R_reset:begin 
+      R_nstate = R_Idle;
+      fifo_index = 2'b00;
+      fifo_nindex = 2'b00;
+      for(j = 0; j < 4; j = j + 1)begin
+        fifo_read[j] = 0;
+      end
+      memread = 0;
+      address_out = 0;
+      new_address = 0;
+
+      ID    = 0;
+      ADDR  = 0;
+      LEN   = 0;
+      SIZE  = 0;
+      BURST = 0;
+      LOCK  = 0;
+      CACHE = 0;
+      PROT  = 0;
+
+      RVALID = 0;
+      RID = 0;
+      RDATA = 0;
+      RRESP = 0;
+      RLAST = 0;
+      count = 0; ncount = 0;
+      temp_data = 0;
+    end
+    R_Idle:begin  //round robin check fifos for transactions
+      RVALID = 0;
+      RLAST = 0;
+      if(fifo_empty[fifo_index])begin
+        R_nstate = R_Idle;
+      end
+      else begin
+        fifo_read[fifo_index] = 1;
+        ID    = AR_fifo_out[fifo_index][48+tagbits:49]; //50:49 = 2 bit ID
+        ADDR  = AR_fifo_out[fifo_index][48:17];
+        LEN   = AR_fifo_out[fifo_index][16:13]; //00 = 1, 01 = 2, 10 = 3, 11 = 4
+        SIZE  = AR_fifo_out[fifo_index][12:11]; //00 = 1, 01 = 2, 10 = 4
+        BURST = AR_fifo_out[fifo_index][10:9];
+        LOCK  = AR_fifo_out[fifo_index][8:7];
+        CACHE = AR_fifo_out[fifo_index][6:3];
+        PROT  = AR_fifo_out[fifo_index][2:0];
+        count = LEN + 1; ncount = LEN + 1;
+        R_nstate = read_mem;
+      end
+      fifo_nindex = fifo_index + 1;
+    end
+    read_mem:begin
+      RLAST = 0;
+      RVALID = 0;                //if returning to read mem, must set RVALID low
+      fifo_read[fifo_index] = 0; //fifo read complete by this stage
+      fifo_index = fifo_nindex;  //will stop read on the read fifo index and the new one, but that's ok
+      address_out = ADDR;
+      memread = 1;
+      temp_data = data_in; //read will be latched into tempdata on negedge by send_data stage. 
+      case(BURST) //takes care of incrementing address and strobing
+      2'b00:begin //fixed
+        new_address = address_out;      //same addressing
+        ncount = count - 1; //finish read 4, becomes 0. 
+      end
+      2'b01:begin //incr
+        //data_start = 0   [7:0]
+        //data_start = 8   [15:8]
+        //data_start = 16  [23:16]
+        //data_start = 24  [31:24]
+        //depending
+        //data_end = 7, 15, 23, 31 depending. 
+      end
+      2'b10:begin //wrapped
+      end
+      2'b11:begin //reserved
+      end
+      endcase
+      R_nstate = send_data;
+      //after read from fifo, increment fifo_nindex
+    end
+    send_data:begin
+      address_out = new_address; //next memory access
+      RID = ID;
+      memread = 0;
+      count = ncount;
+      RDATA = temp_data;
+      RLAST = (count == 0);
+      RVALID = 1;
+      R_nstate = r_valid;
+    end
+    r_valid:begin
+      if(RREADY)begin
+        RVALID = 1;
+        if(RLAST)
+          R_nstate = R_Idle;  //finished reading. can move to next transaction
+        else
+          R_nstate = read_mem; //not finished reading. addr incremented already. read again.
+      end
+      else begin
+        R_nstate = r_valid;   //not received ready handshake. remain here. 
+      end
+    end
+    default:begin
+      R_nstate = R_Idle;
+      fifo_index = 2'b00;
+      fifo_nindex = 2'b00;
+      for(j = 0; j < 4; j = j + 1)begin
+        fifo_read[j] = 0;
+      end
+      memread = 0;
+      address_out = 0;
+      new_address = 0;
+      
+      ID    = 0;
+      ADDR  = 0;
+      LEN   = 0;
+      SIZE  = 0;
+      BURST = 0;
+      LOCK  = 0;
+      CACHE = 0;
+      PROT  = 0;
+
+      RVALID = 0;
+      RID = 0;
+      RDATA = 0;
+      RRESP = 0;
+      RLAST = 0;
+      count = 0; ncount = 0;
+    end
+  endcase
+end
+
 
 //addressing options from specs
 // wire [BusWidth-1 : 0] Start_Address = ADDR;

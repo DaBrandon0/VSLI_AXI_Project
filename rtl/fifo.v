@@ -36,7 +36,6 @@ module fifo #(
             write_ptr <= 0;
             count = 0;
             read_ptr <= 0;
-            entry_out <= 0;
         end
         else begin
             //read
@@ -56,6 +55,7 @@ module fifo #(
         if(!rst)begin
             empty = 1;
             full = 0;
+            entry_out = 0;
         end 
         else begin
             empty = (count == 0);
