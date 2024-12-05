@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module fifo #(
+module fifo_interconnect #(
     parameter DATA_WIDTH = 32,
     parameter DEPTH = 2
 )(

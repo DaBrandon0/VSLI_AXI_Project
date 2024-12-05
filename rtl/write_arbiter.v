@@ -91,7 +91,7 @@ module write_arbiter #(
     generate
         for (i = 0; i < M; i = i + 1) begin : FIFO_INSTANCES
             for (j = 0; j < NUM_OUTSTANDING_TRANS; j = j + 1) begin : FIFO_INSTANCES_TRANS
-                fifo #(
+                fifo_interconnect #(
                     .DATA_WIDTH(FIFO_DATA_SIZE),
                     .DEPTH(1)
                 ) fifo_inst (

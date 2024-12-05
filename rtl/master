@@ -2,7 +2,7 @@
 
 // sources
 // interconnect.v
-fifo.v
+fifo_interconnect.v
 addr_decode.v
 // read_arbiter.v
 write_arbiter.v
