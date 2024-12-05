@@ -5,8 +5,10 @@ module ReadMaster
     input ACLK,             //global clk. do everything on rising edge
     input ARESETn,          //active low reset
     //fifo input signals from testbench
-    input fifo_write_en[0:1],
-    input [48 + tagbits:0] AR_fifo_in[0:1],
+    input fifo0_write,
+    input fifo1_write,
+    input [48 + tagbits:0] AR_fifo0_in,
+    input [48 + tagbits:0] AR_fifo1_in,
     //data output from master to show received value
     output reg [BusWidth-1 : 0] data_out, //showing debug showing value of bus. 
     //READ ADDRESS CHANNEL SIGNALS
@@ -38,13 +40,12 @@ reg fifo_read[0:1];
 reg fifo_index; //shows which fifo we're using
 wire [48 + tagbits:0] AR_fifo_out[0:1]; 
 wire fifo_empty[0:1], fifo_full[0:1];
-fifo fifo_1(ACLK, ARESETn,fifo_write_en[0], fifo_read[0], AR_fifo_in[0], AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
-fifo fifo_2(ACLK, ARESETn,fifo_write_en[1], fifo_read[1], AR_fifo_in[1], AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
-
+fifo fifo_1(ACLK, ARESETn,fifo0_write, fifo_read[0], AR_fifo0_in, AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
+fifo fifo_2(ACLK, ARESETn,fifo1_write, fifo_read[1], AR_fifo1_in, AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
 
 //--------------AR CHANNEL STATE MACHINE -------------------------------------------
 
-reg [1:0] AR_state, AR_nstate;
+reg [2:0] AR_state, AR_nstate;
 always @(posedge ACLK or negedge ARESETn)begin
     if(!ARESETn)begin
         AR_state <= 0;
@@ -54,10 +55,11 @@ always @(posedge ACLK or negedge ARESETn)begin
     end
 end
 
-localparam reset =       2'b00;
-localparam check_fifo0 = 2'b01;
-localparam check_fifo1 = 2'b10;
-localparam ar_ready =    2'b11;
+localparam reset =       3'b000;
+localparam check_fifo0 = 3'b001;
+localparam check_fifo1 = 3'b010;
+localparam ar_valid =    3'b011;
+localparam extra_hold=   3'b100;
 
 always @(*)begin
     case(AR_state)
@@ -124,7 +126,8 @@ always @(*)begin
         fifo_read[0] = 0; //read en will be high initially on this clock edge
         fifo_read[1] = 0; //meaning fifo will register the read and dec counter now
         if(ARREADY)begin
-            //ARVALID = 0; //TODO: not sure if this line should be here or the next edge
+            ARVALID = 1; //TODO: not sure if this line should be here or the next edge
+            // AR_nstate = extra_hold;
             if(fifo_index) //coming from fifo1
                 AR_nstate = check_fifo0;
             else           //coming from fifo0
@@ -134,6 +137,12 @@ always @(*)begin
            AR_nstate = ar_valid;
         end
     end
+    // extra_hold:begin
+    //     if(fifo_index) //coming from fifo1
+    //         AR_nstate = check_fifo0;
+    //     else           //coming from fifo0
+    //         AR_nstate = check_fifo1;
+    // end
     endcase
 end
 

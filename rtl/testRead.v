@@ -1,23 +1,25 @@
 module testRead();
 localparam buswidth = 32;
+localparam tagbits = 1;
 //inputs to master from device
 reg                 ACLK;
 reg                 ARESETn;
-reg [buswidth-1:0]  address_in;
-reg [3:0]           len_in;
-reg [1:0]           size_in;
-reg [1:0]           burst_i;
-reg [1:0]           lock_in;
-reg [3:0]           cache_in;
-reg [2:0]           prot_in;
+reg [tagbits-1:0]   tag_in[0:1];
+reg [buswidth-1:0]  address_in[0:1];
+reg [3:0]           len_in[0:1];
+reg [1:0]           size_in[0:1];
+reg [1:0]           burst_i[0:1];
+reg [1:0]           lock_in[0:1];
+reg [3:0]           cache_in[0:1];
+reg [2:0]           prot_in[0:1];
 //output from master to device
 wire [buswidth-1: 0] data_out;
 //outputs from slave to device
 wire [buswidth-1 : 0] address_out;
-wire                    devread;
-reg [buswidth-1:0] data_in;
+wire                  devread;
+reg [buswidth-1:0]    data_in;
 
-//Master AR wires
+//AR wires
 wire [tagbits-1: 0]  ARID;
 wire [buswidth-1: 0] ARADDR;
 wire [3:0]           ARLEN;
@@ -26,12 +28,11 @@ wire [1:0]           ARBURST;
 wire [1:0]           ARLOCK;
 wire [3:0]           ARCACHE;
 wire [2:0]           ARPROT;
-
-//Data Channel Signals
-wire [tagbits-1:0]      RID;
+//R Data Channel Signals
+wire [tagbits:0]      RID;
 wire [buswidth - 1:0]   RDATA;
-wire [1:0]              RRESP;
 wire                    RLAST;
+wire [1:0]              RRESP;
 
 //handshaking wires
 wire RVALID;
@@ -40,33 +41,55 @@ wire ARVALID;
 wire ARREADY;
 
 //FIFO testbench signals
-reg fifo_write_en[0:1];
+reg fifo_write[0:1];
 reg [49:0] AR_fifo_in[0:1];
 
+
 always #5 ACLK = ~ACLK;
-always #10 devclock_in = ~devclock_in;
 
 initial begin
     ACLK = 1;
-    devclock_in = 1;
     ARESETn = 0;
-    address_in = 32'b0;
-    len_in = 1;
-    size_in = 1;
-    burst_i = 1;
-    lock_in = 1;
-    cache_in = 1;
-    prot_in = 1;
-    data_in = 32'hffffffff;
+    tag_in[0] = 0;
+    address_in[0] = 32'h00001111;
+    len_in[0] = 1;
+    size_in[0] = 1;
+    burst_i[0] = 1;
+    lock_in[0] = 1;
+    cache_in[0] = 1;
+    prot_in[0] = 1;
+    AR_fifo_in[0] = {tag_in[0], address_in[0], len_in[0], size_in[0], burst_i[0], lock_in[0], cache_in[0], prot_in[0]};
+    fifo_write[0] = 1;
+
+    tag_in[1] = 1;
+    address_in[1] = 32'h00002222;
+    len_in[1] = 2;
+    size_in[1] = 2;
+    burst_i[1] = 2;
+    lock_in[1] = 2;
+    cache_in[1] = 2;
+    prot_in[1] = 2;
+    AR_fifo_in[1] = {tag_in[1], address_in[1], len_in[1], size_in[1], burst_i[1], lock_in[1], cache_in[1], prot_in[1]};
+    fifo_write[1] = 1;
     //access 1
-    #8;
+    #10
     ARESETn = 1;
-    #2;
+    #6;
+    fifo_write[0] = 0;
+    
+    tag_in[1] = 1;
+    address_in[1] = 32'h00002222;
+    len_in[1] = 2;
+    size_in[1] = 2;
+    burst_i[1] = 2;
+    lock_in[1] = 2;
+    cache_in[1] = 2;
+    prot_in[1] = 2;
+    AR_fifo_in[1] = {tag_in[1], address_in[1], len_in[1], size_in[1], burst_i[1], lock_in[1], cache_in[1], prot_in[1]};
+    fifo_write[1] = 1;
     #10;
-    memoryRead_in = 1;
-    #20;
-    memoryRead_in = 0;
-    #50;
+    fifo_write[1] = 0;
+    #100;
     $stop;
 end
 
@@ -83,15 +106,10 @@ ReadMaster readmaster(
 .ACLK(ACLK),
 .ARESETn(ARESETn),
 
-.devclock_in(devclock_in),
-.address_in(address_in),
-.memoryRead_in(memoryRead_in),
-.len_in(len_in),
-.size_in(size_in),
-.burst_in(burst_in),
-.lock_in(lock_in),
-.cache_in(cache_in),
-.prot_in(prot_in),
+.fifo0_write(fifo_write[0]),
+.fifo1_write(fifo_write[1]),
+.AR_fifo0_in(AR_fifo_in[0]),
+.AR_fifo1_in(AR_fifo_in[1]),
 .data_out(data_out),
 
 .ARID(ARID),
@@ -103,15 +121,15 @@ ReadMaster readmaster(
 .ARCACHE(ARCACHE),
 .ARPROT(ARPROT),
 
-.RID(RID),
+.ARVALID(ARVALID),
+.ARREADY(ARREADY),
+
+.RID(RID[0]),
 .RDATA(RDATA),
 .RRESP(RRESP),
 .RLAST(RLAST),
-
 .RVALID(RVALID),
-.RREADY(RREADY),
-.ARVALID(ARVALID),
-.ARREADY(ARREADY)
+.RREADY(RREADY)
 );
 
 ReadSlave readslave(
@@ -122,7 +140,7 @@ ReadSlave readslave(
 .devread(devread),
 .data_in(data_in),
 
-.ARID(ARID),
+.ARID({0,ARID}),
 .ARADDR(ARADDR),
 .ARLEN(ARLEN),
 .ARSIZE(ARSIZE),
@@ -131,15 +149,16 @@ ReadSlave readslave(
 .ARCACHE(ARCACHE),
 .ARPROT(ARPROT),
 
+.ARVALID(ARVALID),
+.ARREADY(ARREADY),
+
 .RID(RID),
 .RDATA(RDATA),
 .RRESP(RRESP),
 .RLAST(RLAST),
 
 .RVALID(RVALID),
-.RREADY(RREADY),
-.ARVALID(ARVALID),
-.ARREADY(ARREADY)
+.RREADY(RREADY)
 );
 
 endmodule

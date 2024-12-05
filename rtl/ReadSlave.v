@@ -67,34 +67,44 @@ always @(posedge ACLK or negedge ARESETn)begin
   end
 end
 //comb
+integer i;
 always @(*)begin
   case(AR_state)
     reset:begin
       ARREADY = 1;
-      AR_nstate = wait_master;
-      fifo_write[2'b00] = 0;
-      fifo_write[2'b01] = 0;
-      fifo_write[2'b10] = 0;
-      fifo_write[2'b11] = 0;
-      AR_fifo_in[2'b00] = 0;
-      AR_fifo_in[2'b01] = 0;
-      AR_fifo_in[2'b10] = 0;
-      AR_fifo_in[2'b11] = 0;
+      AR_nstate = AR_idle;
+      for(i = 0; i < 4; i = i+1)begin
+        fifo_write[i] = 0;
+        AR_fifo_in[i] = 0;
+      end
     end
-    idle:begin 
+    AR_idle:begin
+        for(i = 0; i < 4; i = i+1)begin
+        fifo_write[i] = 0;
+        AR_fifo_in[i] = 0;
+      end
       if(ARVALID)begin
         ARREADY = 0;
         AR_nstate = record;
       end 
       else begin
         ARREADY = 1;
-        AR_nstate = idle;
+        AR_nstate = AR_idle;
       end
     end
     record:begin
       ARREADY = 1;
       fifo_write[ARID] = 1; //turn on write to fifo matching ARID
       AR_fifo_in[ARID] = {ARID, ARADDR, ARLEN, ARSIZE, ARBURST, ARLOCK, ARCACHE, ARPROT}; //writes matching bits to matching fifo
+      AR_nstate = AR_idle;
+    end
+    default:begin
+      ARREADY = 1;
+      AR_nstate = AR_idle;
+      for(i = 0; i < 4; i = i+1)begin
+        fifo_write[i] = 0;
+        AR_fifo_in[i] = 0;
+      end
     end
   endcase
 end
