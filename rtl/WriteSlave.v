@@ -61,6 +61,7 @@ module WriteSlave
             begin
                 AWREADY = 1;
                 nstate = 1;
+                BID = AWID;
                 Addressout = AWADDR;
             end
             else 
@@ -109,9 +110,10 @@ module WriteSlave
         4'd3:
         begin
             BRESP = 2'b00; // default ok response 
-            BVALID = 1;
+            BVALID = 0;
             if(BREADY)
             begin
+                BVALID = 1;
                 nstate = 3;
             end
             else

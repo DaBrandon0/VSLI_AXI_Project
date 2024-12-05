@@ -15,6 +15,7 @@ module WriteMaster
     input memoryWrite,
     input devclock,
     input [3:0] ID,
+    input [3:0] WWID,
     input [31:0] WADDR,
     input [3:0] WLEN,
     input [2:0] WSIZE,
@@ -35,7 +36,7 @@ module WriteMaster
     output reg AWVALID,
     input AWREADY,
     //Write data channel signals master side
-    output [3:0] WID,
+    output reg [3:0] WID,
     output reg [buswidth-1:0] WDATA,
     output [3:0] WSTRB,
     output reg WLAST,
@@ -47,6 +48,7 @@ module WriteMaster
     integer j;
     reg sent;
     reg [buswidth-1:0] fifodata [63:0];
+    reg [3:0] fifoawid [63:0];
     reg [3:0] fifowid [63:0];
     reg [31:0] fifowaddr [63:0];
     reg [2:0] fifowsize [63:0];
@@ -84,9 +86,11 @@ module WriteMaster
             if(memoryWrite && !once2)
             begin
                 fifodata[fifosize] <= Datain;
+                fifodata[fifosize] <= Datain;
                 fifosize <= fifosize + 1;
                 fifoWAsize <= fifoWAsize + 1;
-                fifowid[fifoWAsize] <= ID;
+                fifowid[fifosize] <= WWID;
+                fifoawid[fifoWAsize] <= ID;
                 fifowaddr[fifoWAsize] <= WADDR;
                 fifolen[fifoWAsize] <= WLEN;
                 fifowsize[fifoWAsize] <= WSIZE;
@@ -106,9 +110,15 @@ module WriteMaster
                 for (i = 0; i < 64; i = i + 1)
                     begin
                         if(i+WLEN > 63)
+                        begin
                             fifodata[i] <= 32'b0;
+                            fifowid[i] <= 32'b0;
+                        end
                         else
+                        begin
                         fifodata[i] <= fifodata[i+WLEN];
+                        fifowid[i] <= fifowid[i+WLEN];
+                        end
                     end
                 end
             end
@@ -206,16 +216,15 @@ module WriteMaster
         end
         4'd2:
         begin
+            BREADY = 1;
             if(BVALID)
             begin
                 response = BRESP;
-                BREADY = 0;
                 nstate = 0;
             end
             else
             begin
                 nstate = 2;
-                BREADY = 1;
             end
         end
         endcase
