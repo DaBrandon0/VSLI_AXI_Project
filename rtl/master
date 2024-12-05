@@ -5,7 +5,9 @@
 fifo.v
 addr_decode.v
 read_arbiter.v
+// write_arbiter.v
 
 // testbench
 // tb_interconnect.v
 tb_read_arbiter.v
+// tb_write_arbiter.v

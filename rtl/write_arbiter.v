@@ -10,55 +10,55 @@ module read_arbiter #(
     input clr,
 
     // read address channel signals
-    input [(M*1)-1:0] AR_request_f,
-    input [(M*ADDR_WIDTH)-1:0] AR_addr_f,
-    input [(M*$clog2(NUM_OUTSTANDING_TRANS))-1:0] AR_id_f,
-    output [(M*1)-1:0] AR_grant_f,
-    output [(M*$clog2(S))-1:0] AR_sel_f,
+    input [(M*1)-1:0] AW_request_f,
+    input [(M*ADDR_WIDTH)-1:0] AW_addr_f,
+    input [(M*$clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id_f,
+    output [(M*1)-1:0] AW_grant_f,
+    output [(M*$clog2(S))-1:0] AW_sel_f,
 
     // read data channel signals
-    input [(M*1)-1:0] R_request_f,
-    input [(M*ADDR_WIDTH)-1:0] R_addr_f,
-    input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] R_id_f,
-    input [(M*1)-1:0] R_last_f,
-    output [(M*1)-1:0] R_grant_f,
-    output [(M*$clog2(S))-1:0] R_sel_f
+    input [(M*1)-1:0] AW_request_f,
+    input [(M*ADDR_WIDTH)-1:0] AW_addr_f,
+    input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] AW_id_f,
+    input [(M*1)-1:0] AW_last_f,
+    output [(M*1)-1:0] AW_grant_f,
+    output [(M*$clog2(S))-1:0] AW_sel_f
 );
     genvar i, j;
     integer x, y;
 
     // unflatten signals
-    wire [1-1:0] AR_request [M-1:0];
-    wire [ADDR_WIDTH-1:0] AR_addr [M-1:0];
-    wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] AR_id [M-1:0];
-    reg [1-1:0] AR_grant [M-1:0];
-    wire [$clog2(S)-1:0] AR_sel [M-1:0];
+    wire [1-1:0] AW_request [M-1:0];
+    wire [ADDR_WIDTH-1:0] AW_addr [M-1:0];
+    wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id [M-1:0];
+    reg [1-1:0] AW_grant [M-1:0];
+    wire [$clog2(S)-1:0] AW_sel [M-1:0];
 
-    wire [1-1:0] R_request [M-1:0];
-    wire [ADDR_WIDTH-1:0] R_addr [M-1:0];
-    wire [$clog2(M)-1:0] R_master_id [M-1:0];
-    wire [$clog2(NUM_OUTSTANDING_TRANS)-1:0] R_transaction_id [M-1:0];
-    wire [1-1:0] R_last [M-1:0];
-    reg [1-1:0] R_grant [M-1:0];
-    wire [$clog2(S)-1:0] R_sel [M-1:0];
+    wire [1-1:0] AW_request [M-1:0];
+    wire [ADDR_WIDTH-1:0] AW_addr [M-1:0];
+    wire [$clog2(M)-1:0] AW_master_id [M-1:0];
+    wire [$clog2(NUM_OUTSTANDING_TRANS)-1:0] AW_transaction_id [M-1:0];
+    wire [1-1:0] AW_last [M-1:0];
+    reg [1-1:0] AW_grant [M-1:0];
+    wire [$clog2(S)-1:0] AW_sel [M-1:0];
 
     generate
         for (i = 0; i < M; i = i + 1) begin : UNFLATTEN
-            assign AR_request[i] = AR_request_f[i];
-            assign AR_addr[i] = AR_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
-            assign AR_id[i] = AR_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
-            assign AR_grant_f[i] = AR_grant[i];
-            assign AR_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AR_sel[i];
+            assign AW_request[i] = AW_request_f[i];
+            assign AW_addr[i] = AW_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
+            assign AW_id[i] = AW_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
+            assign AW_grant_f[i] = AW_grant[i];
+            assign AW_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AW_sel[i];
 
-            assign R_request[i] = R_request_f[i];
-            assign R_addr[i] = R_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
-            assign R_master_id[i] = R_id_f[(i+1)*($clog2(M) + $clog2(NUM_OUTSTANDING_TRANS)) - 1 :
+            assign AW_request[i] = AW_request_f[i];
+            assign AW_addr[i] = AW_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
+            assign AW_master_id[i] = AW_id_f[(i+1)*($clog2(M) + $clog2(NUM_OUTSTANDING_TRANS)) - 1 :
                                             (i+1)*$clog2(NUM_OUTSTANDING_TRANS)];
-            assign R_transaction_id[i] = R_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS) - 1 :
+            assign AW_transaction_id[i] = AW_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS) - 1 :
                                                 i*$clog2(NUM_OUTSTANDING_TRANS)];
-            assign R_last[i] = R_last_f[i];
-            assign R_grant_f[i] = R_grant[i];
-            assign R_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = R_sel[i];
+            assign AW_last[i] = AW_last_f[i];
+            assign AW_grant_f[i] = AW_grant[i];
+            assign AW_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AW_sel[i];
         end
     endgenerate
 
@@ -70,8 +70,8 @@ module read_arbiter #(
                 .S(S),
                 .SLICE_SIZE(32'h00010000)
             ) addr_decode (
-                .addr(AR_addr[i]),
-                .sel(AR_sel[i])
+                .addr(AW_addr[i]),
+                .sel(AW_sel[i])
             );
         end
     endgenerate
@@ -109,30 +109,30 @@ module read_arbiter #(
     endgenerate
 
     // read address channel arbiter
-    reg [$clog2(M)-1:0] AR_sender;
-    reg [2-1:0] AR_curr_state, AR_next_state;
+    reg [$clog2(M)-1:0] AW_sender;
+    reg [2-1:0] AW_curr_state, AW_next_state;
 
-    localparam AR_IDLE     = 0;
-    localparam AR_REGISTER = 1;
-    localparam AR_ALLOW    = 2;
+    localparam AW_IDLE     = 0;
+    localparam AW_REGISTER = 1;
+    localparam AW_ALLOW    = 2;
 
     always @(posedge clk or negedge clr) begin
         if (!clr) begin
-            AR_curr_state <= AR_IDLE;
-            AR_sender <= 0;
+            AW_curr_state <= AW_IDLE;
+            AW_sender <= 0;
         end else begin
-            AR_curr_state <= AR_next_state;
+            AW_curr_state <= AW_next_state;
 
-            case (AR_curr_state)
-                AR_IDLE: begin
-                    if (!(AR_request[AR_sender] && !ID_fifo_full[AR_sender][AR_id[AR_sender]])) begin
-                        AR_sender <= (AR_sender + 1) % M;
+            case (AW_curr_state)
+                AW_IDLE: begin
+                    if (!(AW_request[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]])) begin
+                        AW_sender <= (AW_sender + 1) % M;
                     end
                 end
 
-                AR_ALLOW: begin
-                    if (!(AR_request[AR_sender])) begin
-                        AR_sender <= (AR_sender + 1) % M;
+                AW_ALLOW: begin
+                    if (!(AW_request[AW_sender])) begin
+                        AW_sender <= (AW_sender + 1) % M;
                     end
                 end
             endcase
@@ -140,10 +140,10 @@ module read_arbiter #(
     end
 
     always @(*) begin
-        case (AR_curr_state)
-            AR_IDLE: begin
+        case (AW_curr_state)
+            AW_IDLE: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AR_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
                 for (x = 0; x < M; x = x + 1) begin
@@ -153,16 +153,16 @@ module read_arbiter #(
                     end
                 end
 
-                if (AR_request[AR_sender] && !ID_fifo_full[AR_sender][AR_id[AR_sender]]) begin
-                    AR_next_state = AR_REGISTER;
+                if (AW_request[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]]) begin
+                    AW_next_state = AW_REGISTER;
                 end else begin
-                    AR_next_state = AR_IDLE;
+                    AW_next_state = AW_IDLE;
                 end
             end
 
-            AR_REGISTER: begin
+            AW_REGISTER: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AR_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
                 for (x = 0; x < M; x = x + 1) begin
@@ -172,18 +172,18 @@ module read_arbiter #(
                     end
                 end
 
-                ID_fifo_write_en[AR_sender][AR_id[AR_sender]] = 1;
-                ID_fifo_data_in[AR_sender][AR_id[AR_sender]] = {AR_sel[AR_sender]};
+                ID_fifo_write_en[AW_sender][AW_id[AW_sender]] = 1;
+                ID_fifo_data_in[AW_sender][AW_id[AW_sender]] = {AW_sel[AW_sender]};
 
-                AR_next_state = AR_ALLOW;
+                AW_next_state = AW_ALLOW;
             end
 
-            AR_ALLOW: begin
+            AW_ALLOW: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    AR_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
-                AR_grant[AR_sender] = 1;
+                AW_grant[AW_sender] = 1;
 
                 for (x = 0; x < M; x = x + 1) begin
                     for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
@@ -192,42 +192,42 @@ module read_arbiter #(
                     end
                 end
 
-                if (!AR_request[AR_sender]) begin
-                    AR_next_state = AR_IDLE;
+                if (!AW_request[AW_sender]) begin
+                    AW_next_state = AW_IDLE;
                 end else begin
-                    AR_next_state = AR_ALLOW;
+                    AW_next_state = AW_ALLOW;
                 end
             end
         endcase
     end
 
     // read data channel arbiter
-    reg [$clog2(S)-1:0] R_sender;
-    reg [2-1:0] R_curr_state, R_next_state;
+    reg [$clog2(S)-1:0] AW_sender;
+    reg [2-1:0] AW_curr_state, AW_next_state;
 
-    localparam R_IDLE     = 0;
-    localparam R_UNREGISTER = 1;
-    localparam R_ALLOW    = 2;
+    localparam AW_IDLE     = 0;
+    localparam AW_UNREGISTER = 1;
+    localparam AW_ALLOW    = 2;
 
     always @(posedge clk or negedge clr) begin
         if (!clr) begin
-            R_curr_state <= R_IDLE;
-            R_sender <= 0;
+            AW_curr_state <= AW_IDLE;
+            AW_sender <= 0;
         end else begin
-            R_curr_state <= R_next_state;
+            AW_curr_state <= AW_next_state;
 
-            case (R_curr_state)
-                R_IDLE: begin
-                    if (!(R_request[R_sender] &&
-                        !ID_fifo_empty[R_master_id[R_sender]][R_transaction_id[R_sender]] &&
-                        ID_fifo_head[R_master_id[R_sender]][R_transaction_id[R_sender]] == R_sender)) begin
-                        R_sender <= (R_sender + 1) % S;
+            case (AW_curr_state)
+                AW_IDLE: begin
+                    if (!(AW_request[AW_sender] &&
+                        !ID_fifo_empty[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] &&
+                        ID_fifo_head[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] == AW_sender)) begin
+                        AW_sender <= (AW_sender + 1) % S;
                     end
                 end
 
-                R_ALLOW: begin
-                    if (R_last[R_sender]) begin
-                        R_sender <= (R_sender + 1) % S;
+                AW_ALLOW: begin
+                    if (AW_last[AW_sender]) begin
+                        AW_sender <= (AW_sender + 1) % S;
                     end
                 end
             endcase
@@ -235,10 +235,10 @@ module read_arbiter #(
     end
 
     always @(*) begin
-        case (R_curr_state)
-            R_IDLE: begin
+        case (AW_curr_state)
+            AW_IDLE: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    R_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
@@ -247,18 +247,18 @@ module read_arbiter #(
                     end
                 end
 
-                if (R_request[R_sender] &&
-                    !ID_fifo_empty[R_master_id[R_sender]][R_transaction_id[R_sender]] &&
-                    ID_fifo_head[R_master_id[R_sender]][R_transaction_id[R_sender]] == R_sender) begin
-                    R_next_state = R_UNREGISTER;
+                if (AW_request[AW_sender] &&
+                    !ID_fifo_empty[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] &&
+                    ID_fifo_head[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] == AW_sender) begin
+                    AW_next_state = AW_UNREGISTER;
                 end else begin
-                    R_next_state = R_IDLE;
+                    AW_next_state = AW_IDLE;
                 end
             end
 
-            R_UNREGISTER: begin
+            AW_UNREGISTER: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    R_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
@@ -267,17 +267,17 @@ module read_arbiter #(
                     end
                 end
 
-                ID_fifo_read_en[R_master_id[R_sender]][R_transaction_id[R_sender]] = 1;
+                ID_fifo_read_en[AW_master_id[AW_sender]][AW_transaction_id[AW_sender]] = 1;
 
-                R_next_state = R_ALLOW;
+                AW_next_state = AW_ALLOW;
             end
 
-            R_ALLOW: begin
+            AW_ALLOW: begin
                 for (x = 0; x < M; x = x + 1) begin
-                    R_grant[x] = 0;
+                    AW_grant[x] = 0;
                 end
 
-                R_grant[R_sender] = 1;
+                AW_grant[AW_sender] = 1;
 
                 for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
                     for (y = 0; y < M; y = y + 1) begin
@@ -285,10 +285,10 @@ module read_arbiter #(
                     end
                 end
 
-                if (R_last[R_sender]) begin
-                    R_next_state = R_IDLE;
+                if (AW_last[AW_sender]) begin
+                    AW_next_state = AW_IDLE;
                 end else begin
-                    R_next_state = R_ALLOW;
+                    AW_next_state = AW_ALLOW;
                 end
             end
         endcase
