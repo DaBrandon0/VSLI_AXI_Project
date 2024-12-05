@@ -19,9 +19,9 @@ module read_arbiter #(
     // read data channel signals
     input [(M*1)-1:0] R_request_f,
     input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] R_id_f,
-    input [(M*1)-1:0] R_last_f,
-    output [(M*1)-1:0] R_grant_f,
-    output [(M*$clog2(S))-1:0] R_sel_f
+    input [(S*1)-1:0] R_last_f,
+    output [(S*1)-1:0] R_grant_f,
+    output [(S*$clog2(M))-1:0] R_sel_f
 );
     genvar i, j;
     integer x, y;
@@ -38,7 +38,7 @@ module read_arbiter #(
     wire [$clog2(NUM_OUTSTANDING_TRANS)-1:0] R_transaction_id [M-1:0];
     wire [1-1:0] R_last [M-1:0];
     reg [1-1:0] R_grant [M-1:0];
-    wire [$clog2(S)-1:0] R_sel [M-1:0];
+    // wire [$clog2(S)-1:0] R_sel [M-1:0];
 
     generate
         for (i = 0; i < M; i = i + 1) begin : UNFLATTEN
@@ -234,7 +234,7 @@ module read_arbiter #(
     always @(*) begin
         case (R_curr_state)
             R_IDLE: begin
-                for (x = 0; x < M; x = x + 1) begin
+                for (x = 0; x < S; x = x + 1) begin
                     R_grant[x] = 0;
                 end
 
@@ -254,7 +254,7 @@ module read_arbiter #(
             end
 
             R_UNREGISTER: begin
-                for (x = 0; x < M; x = x + 1) begin
+                for (x = 0; x < S; x = x + 1) begin
                     R_grant[x] = 0;
                 end
 
@@ -270,7 +270,7 @@ module read_arbiter #(
             end
 
             R_ALLOW: begin
-                for (x = 0; x < M; x = x + 1) begin
+                for (x = 0; x < S; x = x + 1) begin
                     R_grant[x] = 0;
                 end
 

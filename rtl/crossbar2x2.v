@@ -288,8 +288,8 @@ assign M0_WREADY =  (M0_write_data_en && M0_write_data_sel == 0) ? S0_WREADY :
                     (M0_write_data_en && M0_write_data_sel == 1) ? S1_WREADY :
                     {1'b0};
 
-assign M1_AWREADY = (M1_write_data_en && M1_write_data_sel == 0) ? S0_AWREADY :
-                    (M1_write_data_en && M1_write_data_sel == 1) ? S1_AWREADY :
+assign M1_WREADY = (M1_write_data_en && M1_write_data_sel == 0) ? S0_WREADY :
+                    (M1_write_data_en && M1_write_data_sel == 1) ? S1_WREADY :
                     {1'b0};
 
 assign S0_WID =     (M0_write_data_en && M0_write_data_sel == 0) ? M0_WID :
