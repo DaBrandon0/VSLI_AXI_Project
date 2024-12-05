@@ -8,10 +8,10 @@ module WriteSlave
         output reg [buswidth-1:0] Dataout,
         output reg [buswidth-1:0] Addressout,
         input writefinish,
-        output writeavail;
+        output writeavail,
         //Write response channel signals master side
-        output [3:0] BID,
-        output [1:0] BRESP,
+        output reg [3:0] BID,
+        output reg [1:0] BRESP,
         output reg BVALID,
         input BREADY,
         //Write address channel signals slave side
@@ -31,16 +31,15 @@ module WriteSlave
         input [3:0] WSTRB,
         input WLAST,
         input WVALID,
-        output reg WREADY,
+        output reg WREADY
     );
 
     reg [3:0] state;
     reg [3:0] nstate;
-    reg [31:0] writeplace;
     reg[15:0] burstsize;
 
     assign writeavail = ((state == 4'd1)&&WVALID) || state == 4'd2;
-
+    
     always@(posedge ACLK)
     begin
         if(!ARESETn)
@@ -53,15 +52,17 @@ module WriteSlave
     begin
         AWREADY = 0;
         WREADY = 0;
+        BVALID = 0;
         Dataout = 32'bZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ;
         case(state)
         4'd0:
         begin
-            AWREADY = 1;
             if(AWVALID)
             begin
+                AWREADY = 1;
                 nstate = 1;
-                writeplace = AWADDR;
+                BID = AWID;
+                Addressout = AWADDR;
             end
             else 
                 nstate = 0;
@@ -79,9 +80,9 @@ module WriteSlave
                     else
                         nstate = 1;
                     case(AWBURST)
-                    2'b01: writeplace = writeplace + 2**AWSIZE;
-                    2'b10: writeplace = AWADDR;// wrapping burst implementation specific to cache size (not specified)
-                    default: writeplace = writeplace;
+                    2'b01: Addressout = Addressout + 2**AWSIZE;
+                    2'b10: Addressout = AWADDR;// wrapping burst implementation specific to cache size (not specified)
+                    default: Addressout = Addressout;
                     endcase
                 end
                 nstate = 2;
@@ -97,9 +98,10 @@ module WriteSlave
                 else
                     nstate = 1;
                 case(AWBURST)
-                    2'b01: writeplace = writeplace + 2**AWSIZE;
-                    2'b10: writeplace = AWADDR;// wrapping burst implementation specific to cache size (not specified)
-                    default: writeplace = writeplace;
+                    2'b00: Addressout = Addressout;
+                    2'b01: Addressout = Addressout + 2**AWSIZE;
+                    2'b10: Addressout = AWADDR;// wrapping burst implementation specific to cache size (not specified)
+                    default: Addressout = Addressout;
                 endcase
             end
             else
@@ -107,8 +109,17 @@ module WriteSlave
         end
         4'd3:
         begin
-            BRESP = 2'b00 // default ok response 
-            BVALID = 1;
+            BRESP = 2'b00; // default ok response 
+            BVALID = 0;
+            if(BREADY)
+            begin
+                BVALID = 1;
+                nstate = 3;
+            end
+            else
+            begin
+                nstate = 0;
+            end
         end
 
         endcase
