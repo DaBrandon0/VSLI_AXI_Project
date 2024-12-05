@@ -11,7 +11,8 @@ module fifo #(
     input [DATA_WIDTH-1:0] data_in,         // data input
     output reg [DATA_WIDTH-1:0] data_out,   // data output
     output empty,                           // indicates if FIFO is empty
-    output full                             // indicates the FIFO is full
+    output full,                            // indicates the FIFO is full
+    output [DATA_WIDTH-1:0] head            // head of FIFO (what you would read)
 );
 
     // parameters
@@ -28,6 +29,7 @@ module fifo #(
     wire write_allowed = (write_en && !full);
     assign empty = (count == 0);
     assign full = (count == DEPTH);
+    assign head = mem[read_ptr];
 
     // FIFO logic
     always @(posedge clk or negedge clr) begin
