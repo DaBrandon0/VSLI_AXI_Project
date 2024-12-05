@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module tb_interconnect2x2;
+module tb_crossbar2x2;
 
     // Parameters
     localparam BUS_WIDTH = 32;
@@ -24,7 +24,7 @@ module tb_interconnect2x2;
     reg [$clog2(2)-1:0] S0_write_resp_sel, S0_read_data_sel;
 
     // Instantiate the DUT
-    interconnect2x2 #(
+    crossbar2x2 #(
         .BUS_WIDTH(BUS_WIDTH),
         .ID_WIDTH(ID_WIDTH),
         .ADDR_WIDTH(ADDR_WIDTH)

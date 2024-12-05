@@ -1,7 +1,7 @@
 `define M 2
 `define S 2
 
-module interconnect2x2 #(
+module crossbar2x2 #(
     parameter BUS_WIDTH = 32,
     parameter ID_WIDTH = 4,
     parameter ADDR_WIDTH = 32
