@@ -124,7 +124,7 @@ always @(*)begin
         fifo_read[0] = 0; //read en will be high initially on this clock edge
         fifo_read[1] = 0; //meaning fifo will register the read and dec counter now
         if(ARREADY)begin
-            ARVALID = 1; //TODO: not sure if this line should be here or the next edge
+            //ARVALID = 1; //TODO: not sure if this line should be here or the next edge
             // AR_nstate = extra_hold;
             if(fifo_index) //coming from fifo1
                 AR_nstate = check_fifo0;
