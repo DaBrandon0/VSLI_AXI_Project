@@ -7,6 +7,7 @@ module testWrite();
     reg devclock;
     reg [31:0] datawrite = 32'd1;
     reg [31:0] addresswrite = 32'd2;
+    reg [3:0] ID = 4'd0;
     reg [3:0] WLEN = 4'd3;
     reg [2:0] WSIZE = 3'b101;
     reg [1:0] WBURST = 2'b00;
@@ -28,6 +29,7 @@ module testWrite();
     wire [2:0] AWPROT;
     wire AWVALID;
     wire [3:0] WID;
+    wire [1:0] BRESP;
     wire [32-1:0] dataBus;
     wire [3:0] WSTRB;
     wire WLAST;
@@ -40,14 +42,20 @@ module testWrite();
         ARESETn = 0;
         memoryWrite = 0;
         #30 ARESETn = 1;
-        memoryWrite = 1;
-        //#30 memoryWrite = 0;
+        #30 memoryWrite = 1;
+        #30 memoryWrite = 0;
+        datawrite = 32'd2;
+        #30 memoryWrite = 1;
+        #30 memoryWrite = 0;
+        datawrite = 32'd3;
+        #30 memoryWrite = 1;
+        #30 memoryWrite = 0;
     end
 
     always #10 ACLK = !ACLK;
     always #10 devclock = !devclock;
 
-    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
+    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .ID(ID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
     .WCACHE(WCACHE), .WPROT(WPROT), .response(response), .AWID(AWID), .AWADDR(AWADDR), .AWLEN(AWLEN), .AWSIZE(AWSIZE), .AWBURST(AWBURST), .AWLOCK(AWLOCK), .AWCACHE(AWCACHE), .AWPROT(AWPROT), .AWVALID(AWVALID), .AWREADY(AWREADY), .WID(WID), .WDATA(dataBus), .WSTRB(WSTRB), .WLAST(WLAST), .WVALID(WVALID), .WREADY(WREADY));
 
     WriteSlave slavewrite(ACLK, ARESETn, Dataout, addressout, finishwrite, writeavail, BID, BRESP, BVALID,

@@ -14,6 +14,7 @@ module WriteMaster
     input [buswidth-1:0] Datain,
     input memoryWrite,
     input devclock,
+    input [3:0] ID,
     input [31:0] WADDR,
     input [3:0] WLEN,
     input [2:0] WSIZE,
@@ -43,9 +44,16 @@ module WriteMaster
 );
     //Burst data fifo
     integer i;
+    integer j;
     reg sent;
-    reg [buswidth-1:0] fifodata [15:0];
-    reg [4:0] fifosize;
+    reg [buswidth-1:0] fifodata [63:0];
+    reg [3:0] fifowid [63:0];
+    reg [31:0] fifowaddr [63:0];
+    reg [2:0] fifowsize [63:0];
+    reg [1:0] fifoburst [63:0];
+    reg [3:0] fifolen [63:0];
+    reg [6:0] fifosize;
+    reg [6:0] fifoWAsize;
     reg once;
     reg once2;
     always@(posedge devclock)
@@ -53,6 +61,7 @@ module WriteMaster
         if(!ARESETn)
         begin
             fifosize <= 0;
+            fifoWAsize <= 0;
             AWID <= 0;
             AWADDR <= 0;
             AWLEN <= 0;
@@ -63,6 +72,10 @@ module WriteMaster
             AWPROT <= 0;
             once2 <= 0;
             sent <= 0;
+            for (i = 0; i < 64; i = i + 1)
+            begin
+                fifodata[i] <= 32'd0;
+            end
         end
         else
         begin
@@ -72,26 +85,31 @@ module WriteMaster
             begin
                 fifodata[fifosize] <= Datain;
                 fifosize <= fifosize + 1;
-                if(fifosize == 0)
-                begin
-                AWID <= WID;
-                AWADDR <= WADDR;
-                AWLEN <= WLEN;
-                AWSIZE <= WSIZE;
-                AWBURST <= WBURST;
+                fifoWAsize <= fifoWAsize + 1;
+                fifowid[fifoWAsize] <= ID;
+                fifowaddr[fifoWAsize] <= WADDR;
+                fifolen[fifoWAsize] <= WLEN;
+                fifowsize[fifoWAsize] <= WSIZE;
+                fifoburst[fifoWAsize] <= WBURST;
+                /*
                 AWLOCK <= WLOCK;
                 AWCACHE <= WCACHE;
                 AWPROT <= WPROT;
-                end
+                */
                 once2 <= 1;
             end
             if(sent)
             begin
                 if(!once)
                 begin
-                fifosize <= fifosize - 1;
-                for (i = 0; i < 15; i = i + 1)
-                    fifodata[i] <= fifodata[i+1];
+                fifosize <= fifosize - WLEN;
+                for (i = 0; i < 64; i = i + 1)
+                    begin
+                        if(i+WLEN > 63)
+                            fifodata[i] <= 32'b0;
+                        else
+                        fifodata[i] <= fifodata[i+WLEN];
+                    end
                 end
             end
             once <= sent;
@@ -124,6 +142,11 @@ module WriteMaster
 
     always@(*)
     begin
+        AWID = fifowid[0];
+        AWADDR = fifowaddr[0];
+        AWLEN = fifolen[0];
+        AWSIZE = fifowsize[0];
+        AWBURST = fifoburst[0];
         if(!ARESETn)
         begin
             state = 0;
@@ -135,24 +158,34 @@ module WriteMaster
         end
         else
         begin
+        sent  = 0;
         AWVALID = 0;
         WVALID = 0;
         WLAST = 0;
         BREADY = 0;
         response = 2'bZZ;
-        case(state)
-        4'd0:
-        begin
-            if (fifosize != 0)
+        if (fifosize >= AWLEN)
                 AWVALID = 1;
             else
                 AWVALID = 0;
+        case(state)
+        4'd0:
+        begin
             if (AWVALID && AWREADY)
             begin
                 nstate = 1;
-                //AWVALID = 0;
-                WDATA = fifodata[0];
-                sent = 1;
+                fifoWAsize = fifoWAsize - AWLEN;
+                for (j = 0; j < AWLEN; j = j + 1)
+                begin
+                for (i = 0; i < 64; i = i + 1)
+                begin
+                    fifowid[i] = fifowid[i+1];
+                    fifowaddr[i] = fifowaddr[i+1];
+                    fifolen[i] = fifolen[i+1];
+                    fifowsize[i] = fifowsize[i+1];
+                    fifoburst[i] = fifoburst[i+1];
+                end
+                end
             end
             else
                 nstate = 0;
@@ -161,8 +194,10 @@ module WriteMaster
         begin
             BREADY = 1;
             WVALID = 1;
+            WDATA = fifodata[transcount];
             if(transcount == WLEN)
             begin
+                sent = 1;
                 nstate = 2;
                 WLAST = 1;
             end
