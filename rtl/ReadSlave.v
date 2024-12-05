@@ -134,6 +134,7 @@ reg [2:0] count, ncount;
 reg [31:0] temp_data;
 reg [31:0] new_address;
 reg [1:0] fifo_index, fifo_nindex;
+reg [1:0] incr_count, incr_ncount;
 integer j;
 always @(*)begin
   case(R_state)
@@ -163,15 +164,15 @@ always @(*)begin
       RRESP = 0;
       RLAST = 0;
       count = 0; ncount = 0;
+      incr_count = 0; incr_ncount = 0;
       temp_data = 0;
     end
     R_Idle:begin  //round robin check fifos for transactions
       RVALID = 0;
       RLAST = 0;
-      if(fifo_empty[fifo_index])begin
-        R_nstate = R_Idle;
-      end
-      else begin
+      incr_ncount = 0;
+      incr_count = 0;
+      if(!fifo_empty[fifo_index])begin
         fifo_read[fifo_index] = 1;
         ID    = AR_fifo_out[fifo_index][48+tagbits:49]; //50:49 = 2 bit ID
         ADDR  = AR_fifo_out[fifo_index][48:17];
@@ -182,7 +183,11 @@ always @(*)begin
         CACHE = AR_fifo_out[fifo_index][6:3];
         PROT  = AR_fifo_out[fifo_index][2:0];
         count = LEN + 1; ncount = LEN + 1;
+        address_out = ADDR;
         R_nstate = read_mem;
+      end
+      else begin
+        R_nstate = R_Idle;
       end
       fifo_nindex = fifo_index + 1;
     end
@@ -191,7 +196,6 @@ always @(*)begin
       RVALID = 0;                //if returning to read mem, must set RVALID low
       fifo_read[fifo_index] = 0; //fifo read complete by this stage
       fifo_index = fifo_nindex;  //will stop read on the read fifo index and the new one, but that's ok
-      address_out = ADDR;
       memread = 1;
       temp_data = data_in; //read will be latched into tempdata on negedge by send_data stage. 
       case(BURST) //takes care of incrementing address and strobing
@@ -200,12 +204,22 @@ always @(*)begin
         ncount = count - 1; //finish read 4, becomes 0. 
       end
       2'b01:begin //incr
-        //data_start = 0   [7:0]
-        //data_start = 8   [15:8]
-        //data_start = 16  [23:16]
-        //data_start = 24  [31:24]
-        //depending
-        //data_end = 7, 15, 23, 31 depending. 
+      case(SIZE)
+        2'b00: begin  //1byte size access
+          new_address = address_out;
+        end
+        2'b01: begin  //2byte size access
+          if(incr_count == 1)
+            new_address = address_out + 4;
+          else 
+            new_address = address_out;
+          incr_ncount = incr_count + 1;
+        end
+        2'b10: begin  //4byte size access
+          new_address = address_out + 4;
+        end
+      endcase
+      ncount = count - 1;
       end
       2'b10:begin //wrapped
       end
@@ -216,6 +230,7 @@ always @(*)begin
       //after read from fifo, increment fifo_nindex
     end
     send_data:begin
+      incr_count = incr_ncount;
       address_out = new_address; //next memory access
       RID = ID;
       memread = 0;

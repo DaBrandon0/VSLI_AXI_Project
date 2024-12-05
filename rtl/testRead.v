@@ -56,12 +56,12 @@ initial begin
     ARESETn = 0;
 
 
-    //reads 2 transfers of size 16 bytes from addy x08
+    //reads 4 transfers of size 16 bytes from addy x00
     tag_in[0] = 0;
     address_in[0] = 32'h00000000;
-    len_in[0] = 1;
+    len_in[0] = 3;
     size_in[0] = 1;
-    burst_i[0] = 0; //fixed
+    burst_i[0] = 1; //incr
     lock_in[0] = 1;
     cache_in[0] = 1;
     prot_in[0] = 1;
@@ -69,36 +69,33 @@ initial begin
     fifo_write[0] = 1;
 
     //reads 3 transfers of size 4 bytes from addy x08
-    // tag_in[1] = 1;
-    // address_in[1] = 32'h00000008;
-    // len_in[1] = 2;
-    // size_in[1] = 2; 
-    // burst_i[1] = 0; //fixed
-    // lock_in[1] = 2;
-    // cache_in[1] = 2;
-    // prot_in[1] = 2;
-    // AR_fifo_in[1] = {tag_in[1], address_in[1], len_in[1], size_in[1], burst_i[1], lock_in[1], cache_in[1], prot_in[1]};
-    // fifo_write[1] = 1;
-    //access 1
+    tag_in[1] = 1;
+    address_in[1] = 32'h00000008;
+    len_in[1] = 2;
+    size_in[1] = 2; 
+    burst_i[1] = 1; //incr
+    lock_in[1] = 2;
+    cache_in[1] = 2;
+    prot_in[1] = 2;
+    AR_fifo_in[1] = {tag_in[1], address_in[1], len_in[1], size_in[1], burst_i[1], lock_in[1], cache_in[1], prot_in[1]};
+    fifo_write[1] = 1;
     #10
     ARESETn = 1;
     #6;
-    //reads 4 transfers of size 1 byte from addy x08
-    fifo_write[0] = 0;
-    // fifo_write[0] = 1;
-    // fifo_write[1] = 0;
-    // tag_in[0] = 0;
-    // address_in[0] = 32'h00000000;
-    // len_in[0] = 3;
-    // size_in[0] = 0;
-    // burst_i[0] = 0; //fixed
-    // lock_in[0] = 1;
-    // cache_in[0] = 1;
-    // prot_in[0] = 1;
-    // AR_fifo_in[0] = {tag_in[0], address_in[0], len_in[0], size_in[0], burst_i[0], lock_in[0], cache_in[0], prot_in[0]};
+    //reads 4 transfers of size 1 byte from addy x00
+    fifo_write[0] = 1;
+    tag_in[0] = 0;
+    address_in[0] = 32'h00000000;
+    len_in[0] = 3;
+    size_in[0] = 0;
+    burst_i[0] = 1; //incr
+    lock_in[0] = 1;
+    cache_in[0] = 1;
+    prot_in[0] = 1;
+    AR_fifo_in[0] = {tag_in[0], address_in[0], len_in[0], size_in[0], burst_i[0], lock_in[0], cache_in[0], prot_in[0]};
     #10;
-    // fifo_write[0] = 1;
-    #100;
+    fifo_write[0] = 0;
+    #250;
     $stop;
 end
 
