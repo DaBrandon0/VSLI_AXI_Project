@@ -1,4 +1,4 @@
-module Memory(CS, WE, CLK, WADDR, RADDR, Mem_in, Mem_out);
+module Memory(CS, WE, CLK, WADDR, RADDR, Mem_in, Mem_out, writefinish);
   input CS;
   input WE;
   input CLK;
@@ -6,6 +6,7 @@ module Memory(CS, WE, CLK, WADDR, RADDR, Mem_in, Mem_out);
   input [6:0] RADDR;
   input [31:0] Mem_in;
   output reg [31:0] Mem_out;
+  output reg writefinish;
 
   reg [31:0] data_out;
   reg [7:0] RAM [0:127];
@@ -144,11 +145,14 @@ module Memory(CS, WE, CLK, WADDR, RADDR, Mem_in, Mem_out);
 
   always @(negedge CLK)
   begin
+    if(WE == 1)
+        writefinish = 0;
     if((CS == 1'b1) && (WE == 1'b1)) begin
-      // RAM[WADDR]     <= Mem_in[7:0];
-	    // RAM[WADDR + 1] <= Mem_in[15:8];
-	    // RAM[WADDR + 2] <= Mem_in[23:16];
-	    // RAM[WADDR + 3] <= Mem_in[31:24];
+      RAM[WADDR]     <= Mem_in[7:0];
+	    RAM[WADDR + 1] <= Mem_in[15:8];
+	    RAM[WADDR + 2] <= Mem_in[23:16];
+	    RAM[WADDR + 3] <= Mem_in[31:24];
+      writefinish =  1;
 	  end
     Mem_out <= {RAM[RADDR+3],RAM[RADDR+2],RAM[RADDR+1],RAM[RADDR]};
   end

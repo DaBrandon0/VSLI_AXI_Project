@@ -1,7 +1,6 @@
 module testWrite();
     reg ACLK;
     reg ARESETn;
-    reg finishwrite = 1;
     wire writeavail;
     reg memoryWrite;
     reg devclock;
@@ -29,13 +28,15 @@ module testWrite();
     wire [3:0] AWCACHE;
     wire [2:0] AWPROT;
     wire AWVALID;
-    wire [3:0] WID;
+    wire [3:0] conWID;
     wire [1:0] BRESP;
     wire [32-1:0] dataBus;
     wire [3:0] WSTRB;
     wire WLAST;
     wire WVALID;
-
+    wire [31:0] readdata;
+    reg cs = 1;
+    reg [6:0] readaddy = 0;
     initial
     begin
         ACLK = 0;
@@ -56,11 +57,13 @@ module testWrite();
     always #10 ACLK = !ACLK;
     always #10 devclock = !devclock;
 
-    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .ID(ID), .WWID(WID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
-    .WCACHE(WCACHE), .WPROT(WPROT), .response(response), .AWID(AWID), .AWADDR(AWADDR), .AWLEN(AWLEN), .AWSIZE(AWSIZE), .AWBURST(AWBURST), .AWLOCK(AWLOCK), .AWCACHE(AWCACHE), .AWPROT(AWPROT), .AWVALID(AWVALID), .AWREADY(AWREADY), .WID(WID), .WDATA(dataBus), .WSTRB(WSTRB), .WLAST(WLAST), .WVALID(WVALID), .WREADY(WREADY));
+    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .ID(ID), .WWID(WWID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
+    .WCACHE(WCACHE), .WPROT(WPROT), .response(response), .AWID(AWID), .AWADDR(AWADDR), .AWLEN(AWLEN), .AWSIZE(AWSIZE), .AWBURST(AWBURST), .AWLOCK(AWLOCK), .AWCACHE(AWCACHE), .AWPROT(AWPROT), .AWVALID(AWVALID), .AWREADY(AWREADY), .WID(conWID), .WDATA(dataBus), .WSTRB(WSTRB), .WLAST(WLAST), .WVALID(WVALID), .WREADY(WREADY));
 
     WriteSlave slavewrite(ACLK, ARESETn, Dataout, addressout, finishwrite, writeavail, BID, BRESP, BVALID,
-    BREADY, AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWLOCK, AWCACHE, AWPROT, AWVALID, AWREADY, WID, dataBus, WSTRB, WLAST, WVALID, WREADY);
+    BREADY, AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWLOCK, AWCACHE, AWPROT, AWVALID, AWREADY, conWID, dataBus, WSTRB, WLAST, WVALID, WREADY);
+
+    Memory store(cs, writeavail, ACLK, addressout, readaddy, Dataout, readdata, finishwrite);
 
     
 
