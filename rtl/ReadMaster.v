@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 
 module ReadMaster
     #(parameter BusWidth = 32,

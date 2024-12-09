@@ -12,6 +12,8 @@
 //master and slave have names of "Master_out_" or "Slave_in_" for signal names
 //interconnect must wire Master_out_signal to Slave_in_signal, and Slave_out_signal to Master_in_signal
 
+`timescale 1ns/1ps
+
 module ReadMasterSlave
     #(parameter buswidth = 32)
 (

@@ -31,8 +31,8 @@ Memory mem(memread, !memread, ACLK, dummy0, address_out[6:0], dummy1, data_in, w
 //AR wires
 wire Master_out_ARID;
 wire [1:0] Slave_in_ARID = {0, Master_out_ARID};
-wire Master_in_RID = Slave_out_RID[0];
 wire [1:0] Slave_out_RID;
+wire Master_in_RID = Slave_out_RID[0];
 
 wire [buswidth-1: 0]    ARADDR;
 wire [3:0]              ARLEN;

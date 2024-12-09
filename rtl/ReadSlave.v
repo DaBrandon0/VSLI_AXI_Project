@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module ReadSlave
     #(parameter BusWidth = 32,
       parameter tagbits = 2) //2 bit tag for slave to track 2 master 2 ID each

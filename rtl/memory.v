@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module Memory(CS, WE, CLK, WADDR, RADDR, Mem_in, Mem_out, writefinish);
   input CS;
   input WE;
