@@ -57,7 +57,7 @@ module testWrite();
     always #10 ACLK = !ACLK;
     always #10 devclock = !devclock;
 
-    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .ID(ID), .WWID(WWID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
+    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(BID), .BRESP(BRESP), .BVALID(BVALID), .BREADY(BREADY), .Datain(datawrite), .ID(ID), .WWID(WID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
     .WCACHE(WCACHE), .WPROT(WPROT), .response(response), .AWID(AWID), .AWADDR(AWADDR), .AWLEN(AWLEN), .AWSIZE(AWSIZE), .AWBURST(AWBURST), .AWLOCK(AWLOCK), .AWCACHE(AWCACHE), .AWPROT(AWPROT), .AWVALID(AWVALID), .AWREADY(AWREADY), .WID(conWID), .WDATA(dataBus), .WSTRB(WSTRB), .WLAST(WLAST), .WVALID(WVALID), .WREADY(WREADY));
 
     WriteSlave slavewrite(ACLK, ARESETn, Dataout, addressout, finishwrite, writeavail, BID, BRESP, BVALID,

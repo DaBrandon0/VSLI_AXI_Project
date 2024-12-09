@@ -47,6 +47,7 @@ module WriteMaster
     integer i;
     integer j;
     reg sent;
+    reg sent2;
     reg [buswidth-1:0] fifodata [63:0];
     reg [3:0] fifoawid [63:0];
     reg [3:0] fifowid [63:0];
@@ -58,6 +59,7 @@ module WriteMaster
     reg [6:0] fifoWAsize;
     reg once;
     reg once2;
+    reg once3;
     always@(posedge devclock)
     begin
         if(!ARESETn)
@@ -73,7 +75,10 @@ module WriteMaster
             AWCACHE <= 0;
             AWPROT <= 0;
             once2 <= 0;
+            once3 <= 0;
             sent <= 0;
+            sent2 <= 0;
+            
             for (i = 0; i < 64; i = i + 1)
             begin
                 fifodata[i] <= 32'd0;
@@ -102,6 +107,24 @@ module WriteMaster
                 */
                 once2 <= 1;
             end
+            if(sent2)
+            begin
+                if(!once3)
+                begin
+                fifoWAsize = fifoWAsize - AWLEN;
+                    for (j = 0; j < AWLEN; j = j + 1)
+                begin
+                for (i = 0; i < 64; i = i + 1)
+                begin
+                    fifowid[i] = fifowid[i+1];
+                    fifowaddr[i] = fifowaddr[i+1];
+                    fifolen[i] = fifolen[i+1];
+                    fifowsize[i] = fifowsize[i+1];
+                    fifoburst[i] = fifoburst[i+1];
+                end
+                end
+                end
+            end
             if(sent)
             begin
                 if(!once)
@@ -123,6 +146,7 @@ module WriteMaster
                 end
             end
             once <= sent;
+            once3 <= sent2;
         end
     end
 
@@ -169,7 +193,7 @@ module WriteMaster
         else
         begin
         sent  = 0;
-        AWVALID = 0;
+        sent2 = 0;
         WVALID = 0;
         WLAST = 0;
         BREADY = 0;
@@ -184,24 +208,13 @@ module WriteMaster
             if (AWVALID && AWREADY)
             begin
                 nstate = 1;
-                fifoWAsize = fifoWAsize - AWLEN;
-                for (j = 0; j < AWLEN; j = j + 1)
-                begin
-                for (i = 0; i < 64; i = i + 1)
-                begin
-                    fifowid[i] = fifowid[i+1];
-                    fifowaddr[i] = fifowaddr[i+1];
-                    fifolen[i] = fifolen[i+1];
-                    fifowsize[i] = fifowsize[i+1];
-                    fifoburst[i] = fifoburst[i+1];
-                end
-                end
             end
             else
                 nstate = 0;
         end
         4'd1:
         begin
+            sent2 = 1;
             BREADY = 1;
             WVALID = 1;
             WDATA = fifodata[transcount];
