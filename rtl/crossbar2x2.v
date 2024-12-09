@@ -366,84 +366,84 @@ assign S1_BREADY    =   (M1_write_data_en && M1_write_data_sel == 0) ? M0_AWREAD
                         {1'b0};
 
 // read address channel signals
-assign M0_ARREADY = (M0_write_addr_en && M0_write_addr_sel == 0) ? S0_ARREADY :
-                    (M0_write_addr_en && M0_write_addr_sel == 1) ? S1_ARREADY :
+assign M0_ARREADY = (M0_read_addr_en && M0_read_addr_sel == 0) ? S0_ARREADY :
+                    (M0_read_addr_en && M0_read_addr_sel == 1) ? S1_ARREADY :
                     {1'b0};
 
-assign M1_ARREADY = (M1_write_addr_en && M1_write_addr_sel == 0) ? S0_ARREADY :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? S1_ARREADY :
+assign M1_ARREADY = (M1_read_addr_en && M1_read_addr_sel == 0) ? S0_ARREADY :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? S1_ARREADY :
                     {1'b0};
 
-assign S0_ARID =    (M0_write_addr_en && M0_write_addr_sel == 0) ? {`M'b0, M0_ARID} :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? {`M'b1, M1_ARID} :
+assign S0_ARID =    (M0_read_addr_en && M0_read_addr_sel == 0) ? {`M'b0, M0_ARID} :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? {`M'b1, M1_ARID} :
                     {ID_WIDTH+$clog2(`M){1'bz}};
 
-assign S0_ARADDR =  (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARADDR :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARADDR :
+assign S0_ARADDR =  (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARADDR :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARADDR :
                     {ADDR_WIDTH{1'bz}};
 
-assign S0_ARLEN =   (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARLEN :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARLEN :
+assign S0_ARLEN =   (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARLEN :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARLEN :
                     {4'bz};
 
-assign S0_ARSIZE =  (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARSIZE :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARSIZE :
+assign S0_ARSIZE =  (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARSIZE :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARSIZE :
                     {3'bz};
 
-assign S0_ARBURST = (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARBURST :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARBURST :
+assign S0_ARBURST = (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARBURST :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARBURST :
                     {2'bz};
 
-assign S0_ARLOCK =  (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARLOCK :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARLOCK :
+assign S0_ARLOCK =  (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARLOCK :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARLOCK :
                     {2'bz};
 
-assign S0_ARCACHE = (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARCACHE :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARCACHE :
+assign S0_ARCACHE = (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARCACHE :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARCACHE :
                     {4'bz};
 
-assign S0_ARPROT =  (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARPROT :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARPROT :
+assign S0_ARPROT =  (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARPROT :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARPROT :
                     {3'bz};
 
-assign S0_ARVALID = (M0_write_addr_en && M0_write_addr_sel == 0) ? M0_ARVALID :
-                    (M1_write_addr_en && M1_write_addr_sel == 0) ? M1_ARVALID :
+assign S0_ARVALID = (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARVALID :
+                    (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARVALID :
                     {1'b0};
 
-assign S1_ARID =    (M0_write_addr_en && M0_write_addr_sel == 1) ? {`M'b0, M0_ARID} :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? {`M'b1, M1_ARID} :
+assign S1_ARID =    (M0_read_addr_en && M0_read_addr_sel == 1) ? {`M'b0, M0_ARID} :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? {`M'b1, M1_ARID} :
                     {ID_WIDTH+$clog2(`M){1'bz}};
 
-assign S1_ARADDR =  (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARADDR :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARADDR :
+assign S1_ARADDR =  (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARADDR :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARADDR :
                     {ADDR_WIDTH{1'bz}};
 
-assign S1_ARLEN =   (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARLEN :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARLEN :
+assign S1_ARLEN =   (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARLEN :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARLEN :
                     {4'bz};
 
-assign S1_ARSIZE =  (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARSIZE :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARSIZE :
+assign S1_ARSIZE =  (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARSIZE :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARSIZE :
                     {3'bz};
 
-assign S1_ARBURST = (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARBURST :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARBURST :
+assign S1_ARBURST = (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARBURST :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARBURST :
                     {2'bz};
 
-assign S1_ARLOCK =  (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARLOCK :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARLOCK :
+assign S1_ARLOCK =  (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARLOCK :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARLOCK :
                     {2'bz};
 
-assign S1_ARCACHE = (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARCACHE :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARCACHE :
+assign S1_ARCACHE = (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARCACHE :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARCACHE :
                     {4'bz};
 
-assign S1_ARPROT =  (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARPROT :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARPROT :
+assign S1_ARPROT =  (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARPROT :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARPROT :
                     {3'bz};
 
-assign S1_ARVALID = (M0_write_addr_en && M0_write_addr_sel == 1) ? M0_ARVALID :
-                    (M1_write_addr_en && M1_write_addr_sel == 1) ? M1_ARVALID :
+assign S1_ARVALID = (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARVALID :
+                    (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARVALID :
                     {1'bz};
 
 // read data channel signals

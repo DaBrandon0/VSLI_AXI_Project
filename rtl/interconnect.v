@@ -205,11 +205,11 @@ wire S0_read_data_en;
 wire [$clog2(M)-1:0] S1_read_data_sel;
 wire S1_read_data_en;
 
-crossbar #(
+crossbar2x2 #(
     .BUS_WIDTH(BUS_WIDTH),
     .ID_WIDTH(ID_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH)
-) crossbar_inst (
+) crossbar2x2_inst (
     // write address channel signals
     .M0_AWID(M0_AWID),
     .M0_AWADDR(M0_AWADDR),
@@ -421,9 +421,9 @@ wire [(S*$clog2(M))-1:0] R_sel_f;
 
 assign AR_request_f = {M1_ARVALID, M0_ARVALID};
 assign AR_addr_f = {M1_ARADDR, M0_ARADDR};
-assign AR_id_f = {M1_AWID, M0_AWID};
+assign AR_id_f = {M1_ARID, M0_ARID};
 
-assign R_request_f = {S1_RREADY, S0_RREADY};
+assign R_request_f = {M1_RREADY, M0_RREADY};
 assign R_id_f = {S1_RID, S0_RID};
 assign R_last_f = {S1_RLAST, S0_RLAST};
 

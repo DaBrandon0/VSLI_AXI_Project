@@ -122,13 +122,13 @@ module read_arbiter #(
 
             case (AR_curr_state)
                 AR_IDLE: begin
-                    if (!(AR_request[AR_sender] && !ID_fifo_full[AR_sender][AR_id[AR_sender]])) begin
+                    if (AR_next_state == AR_IDLE) begin
                         AR_sender <= (AR_sender + 1) % M;
                     end
                 end
 
                 AR_ALLOW: begin
-                    if (!(AR_request[AR_sender])) begin
+                    if (AR_next_state == AR_IDLE) begin
                         AR_sender <= (AR_sender + 1) % M;
                     end
                 end
@@ -150,7 +150,7 @@ module read_arbiter #(
                     end
                 end
 
-                if (AR_request[AR_sender] && !ID_fifo_full[AR_sender][AR_id[AR_sender]]) begin
+                if (AR_request[AR_sender] && !(ID_fifo_full[AR_sender][AR_id[AR_sender]])) begin
                     AR_next_state = AR_REGISTER;
                 end else begin
                     AR_next_state = AR_IDLE;
@@ -215,15 +215,13 @@ module read_arbiter #(
 
             case (R_curr_state)
                 R_IDLE: begin
-                    if (!(R_request[R_sender] &&
-                        !ID_fifo_empty[R_master_id[R_sender]][R_transaction_id[R_sender]] &&
-                        ID_fifo_head[R_master_id[R_sender]][R_transaction_id[R_sender]] == R_sender)) begin
+                    if (R_next_state == R_IDLE) begin
                         R_sender <= (R_sender + 1) % S;
                     end
                 end
 
                 R_ALLOW: begin
-                    if (R_last[R_sender]) begin
+                    if (R_next_state == R_IDLE) begin
                         R_sender <= (R_sender + 1) % S;
                     end
                 end

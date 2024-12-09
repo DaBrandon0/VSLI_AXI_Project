@@ -1,22 +1,18 @@
 -v
 
 // sources
-// interconnect.v
-// fifo_interconnect.v
-// addr_decode.v
-// read_arbiter.v
-// write_arbiter.v
-// WriteMaster.v
-// WriteSlave.v
+addr_decode.v
+fifo_interconnect.v
+read_arbiter.v
+write_arbiter.v
+crossbar2x2.v
+interconnect.v
 memory.v
 fifo.v
 ReadMaster.v
 ReadSlave.v
 ReadMasterSlave.v
+top.v
 
 // testbench
-// tb_interconnect.v
-// tb_read_arbiter.v
-// tb_write_arbiter.v
-// testWrite.v
-testRead.v
+tb_top.v
