@@ -1,3 +1,4 @@
+
 module ReadMaster
     #(parameter BusWidth = 32,
       parameter tagbits = 1)
@@ -5,10 +6,10 @@ module ReadMaster
     input ACLK,             //global clk. do everything on rising edge
     input ARESETn,          //active low reset
     //fifo input signals from testbench
-    input fifo0_write,
-    input fifo1_write,
-    input [48 + tagbits:0] AR_fifo0_in,
-    input [48 + tagbits:0] AR_fifo1_in,
+    input fifo_write0,
+    input fifo_write1,
+    input [48 + tagbits:0] AR_fifo_in0,
+    input [48 + tagbits:0] AR_fifo_in1,
     //data output from master to show received value
     //READ ADDRESS CHANNEL SIGNALS
     output reg [tagbits-1:0]    ARID,     //ID of transaction for this start read addr and control signals
@@ -39,12 +40,13 @@ reg fifo_read[0:1];
 reg fifo_index; //shows which fifo we're using
 wire [48 + tagbits:0] AR_fifo_out[0:1]; 
 wire fifo_empty[0:1], fifo_full[0:1];
-fifo fifo_1(ACLK, ARESETn,fifo0_write, fifo_read[0], AR_fifo0_in, AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
-fifo fifo_2(ACLK, ARESETn,fifo1_write, fifo_read[1], AR_fifo1_in, AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
+fifo #(.tagbits(1))fifo_1(ACLK, ARESETn,fifo_write0, fifo_read[0], AR_fifo_in0, AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
+fifo #(.tagbits(1))fifo_2(ACLK, ARESETn,fifo_write1, fifo_read[1], AR_fifo_in1, AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
 
 //--------------AR CHANNEL STATE MACHINE -------------------------------------------
 
 reg [1:0] AR_state, AR_nstate;
+
 always @(posedge ACLK or negedge ARESETn)begin
     if(!ARESETn)begin
         AR_state <= 0;
@@ -149,7 +151,7 @@ always @(*)begin
         fifo_index = 0;
         fifo_read[0] = 0;
         fifo_read[1] = 0;
-        AR_nstate = check_fifo0;
+        AR_nstate = reset;
     end
     endcase
 end

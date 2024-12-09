@@ -117,9 +117,10 @@ end
 reg[2:0] R_state, R_nstate;
 localparam R_reset = 3'd0;
 localparam R_Idle = 3'd1;
-localparam read_mem = 3'd2;
-localparam send_data = 3'd3;
-localparam r_valid = 3'd4;
+localparam R_Idle2 = 3'd2;
+localparam read_mem = 3'd3;
+localparam send_data = 3'd4;
+localparam r_valid = 3'd5;
 
 always @(posedge ACLK or negedge ARESETn)begin
   if(!ARESETn)begin
@@ -136,6 +137,7 @@ reg [31:0] temp_data;
 reg [31:0] new_address;
 reg [1:0] fifo_index, fifo_nindex;
 reg [1:0] incr_count, incr_ncount;
+reg sync_index;
 integer j;
 always @(*)begin
   case(R_state)
@@ -168,7 +170,7 @@ always @(*)begin
       incr_count = 0; incr_ncount = 0;
       temp_data = 0;
     end
-    R_Idle:begin  //round robin check fifos for transactions
+    R_Idle:begin  
       RVALID = 0;
       RLAST = 0;
       incr_ncount = 0;
@@ -186,17 +188,49 @@ always @(*)begin
         count = LEN + 1; ncount = LEN + 1;
         address_out = ADDR;
         R_nstate = read_mem;
+        sync_index = 1;
+      end
+      else begin
+        R_nstate = R_Idle2;
+      end
+      fifo_nindex = fifo_index + 1;
+    end
+    R_Idle2:begin  
+      RVALID = 0;
+      RLAST = 0;
+      incr_ncount = 0;
+      incr_count = 0;
+      if(!fifo_empty[fifo_nindex])begin
+        fifo_read[fifo_nindex] = 1;
+        ID    = AR_fifo_out[fifo_nindex][48+tagbits:49]; //50:49 = 2 bit ID
+        ADDR  = AR_fifo_out[fifo_nindex][48:17];
+        LEN   = AR_fifo_out[fifo_nindex][16:13]; //00 = 1, 01 = 2, 10 = 3, 11 = 4
+        SIZE  = AR_fifo_out[fifo_nindex][12:11]; //00 = 1, 01 = 2, 10 = 4
+        BURST = AR_fifo_out[fifo_nindex][10:9];
+        LOCK  = AR_fifo_out[fifo_nindex][8:7];
+        CACHE = AR_fifo_out[fifo_nindex][6:3];
+        PROT  = AR_fifo_out[fifo_nindex][2:0];
+        count = LEN + 1; ncount = LEN + 1;
+        address_out = ADDR;
+        R_nstate = read_mem;
+        sync_index = 0;
       end
       else begin
         R_nstate = R_Idle;
       end
-      fifo_nindex = fifo_index + 1;
+      fifo_index = fifo_nindex + 1;
     end
     read_mem:begin
       RLAST = 0;
       RVALID = 0;                //if returning to read mem, must set RVALID low
-      fifo_read[fifo_index] = 0; //fifo read complete by this stage
-      fifo_index = fifo_nindex;  //will stop read on the read fifo index and the new one, but that's ok
+      if(sync_index)begin       //adjusting from which idle state we're coming from
+        fifo_read[fifo_index] = 0; //fifo read complete by this stage
+        fifo_index = fifo_nindex;  //will stop read on the read fifo index and the new one, but that's ok
+      end 
+      else begin
+        fifo_read[fifo_nindex] = 0; //fifo read complete by this stage
+        fifo_nindex = fifo_index;  //will stop read on the read fifo index and the new one, but that's ok
+      end
       memread = 1;
       temp_data = data_in; //read will be latched into tempdata on negedge by send_data stage. 
       case(BURST) //takes care of incrementing address and strobing
@@ -263,7 +297,7 @@ always @(*)begin
       memread = 0;
       address_out = 0;
       new_address = 0;
-      
+
       ID    = 0;
       ADDR  = 0;
       LEN   = 0;
@@ -279,6 +313,8 @@ always @(*)begin
       RRESP = 0;
       RLAST = 0;
       count = 0; ncount = 0;
+      incr_count = 0; incr_ncount = 0;
+      temp_data = 0;
     end
   endcase
 end

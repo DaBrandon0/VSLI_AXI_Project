@@ -1,6 +1,6 @@
 //usage:
 //FIFO inputs:
-//2 separate fifos to write into. enable fifo0_write or fifo1_write for 1 cycle to send 1 entry.
+//2 separate fifos to write into. enable fifo_write0 or fifo_write1 for 1 cycle to send 1 entry.
 //testbench will set each AR channel signal individually. *tag is 1 bit
 //change from testRead testbench: no need to input 50 bit encoded AR data. i do it here.
 
@@ -19,14 +19,14 @@ module ReadMasterSlave
     input ARESETn,
 
     //FIFO INPUT SIGNALS
-    input fifo0_write,//2 signals for 2 separate fifos in each readmaster.
-    input fifo1_write,
+    input fifo_write0,//2 signals for 2 separate fifos in each readmaster.
+    input fifo_write1,
     //50 bit encoded transaction data for master
     input               tag_in0,        input               tag_in1,        //input is 1 bit tag
     input [buswidth-1:0]address_in0,    input [buswidth-1:0]address_in1,
     input [3:0]         len_in0,        input [3:0]         len_in1,        
     input [1:0]         size_in0,       input [1:0]         size_in1,
-    input [1:0]         burst_i0,       input [1:0]         burst_i1,
+    input [1:0]         burst_in0,      input [1:0]         burst_in1,
     input [1:0]         lock_in0,       input [1:0]         lock_in1,
     input [3:0]         cache_in0,      input [3:0]         cache_in1,
     input [2:0]         prot_in0,       input [2:0]         prot_in1,
@@ -40,7 +40,7 @@ module ReadMasterSlave
     
     //AR SIGNALS--------
     //Master
-    output [0:0]           Master_out_ARID,             //IMPORTANT master out 1 bit ID
+    output                 Master_out_ARID,             //IMPORTANT master out 1 bit ID
     output [buswidth-1: 0] Master_out_ARADDR,
     output [3:0]           Master_out_ARLEN,
     output [1:0]           Master_out_ARSIZE,
@@ -80,18 +80,18 @@ module ReadMasterSlave
     input  Slave_in_RREADY
 
 );  
-
-wire AR_fifo0_in = {tag_in0, address_in0, len_in0, size_in0, burst_i0, lock_in0, cache_in0, prot_in0};
-wire AR_fifo1_in = {tag_in1, address_in1, len_in1, size_in1, burst_i1, lock_in1, cache_in1, prot_in1};
+wire [49:0] AR_fifo_in0, AR_fifo_in1;
+assign AR_fifo_in0 = {tag_in0, address_in0, len_in0, size_in0, burst_in0, lock_in0, cache_in0, prot_in0};
+assign AR_fifo_in1 = {tag_in1, address_in1, len_in1, size_in1, burst_in1, lock_in1, cache_in1, prot_in1};
 
 ReadMaster readmaster(
 .ACLK(ACLK),
 .ARESETn(ARESETn),
 
-.fifo0_write(fifo0_write),
-.fifo1_write(fifo1_write),
-.AR_fifo0_in(AR_fifo0_in),
-.AR_fifo1_in(AR_fifo1_in),
+.fifo_write0(fifo_write0),
+.fifo_write1(fifo_write1),
+.AR_fifo_in0(AR_fifo_in0),
+.AR_fifo_in1(AR_fifo_in1),
 
 .ARID(Master_out_ARID),
 .ARADDR(Master_out_ARADDR),
@@ -107,8 +107,8 @@ ReadMaster readmaster(
 
 .RID(Master_in_RID),
 .RDATA(Master_in_RDATA),
-.RRESP(Master_in_RLAST),
-.RLAST(Master_in_RRESP),
+.RRESP(Master_in_RRESP),
+.RLAST(Master_in_RLAST),
 .RVALID(Master_in_RVALID),
 .RREADY(Master_out_RREADY)
 );
@@ -135,8 +135,8 @@ ReadSlave readslave(
 
 .RID(Slave_out_RID),
 .RDATA(Slave_out_RDATA),
-.RRESP(Slave_out_RLAST),
-.RLAST(Slave_out_RRESP),
+.RRESP(Slave_out_RRESP),
+.RLAST(Slave_out_RLAST),
 
 .RVALID(Slave_out_RVALID),
 .RREADY(Slave_in_RREADY)
