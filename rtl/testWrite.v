@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module testWrite();
     reg ACLK;
     reg ARESETn;
