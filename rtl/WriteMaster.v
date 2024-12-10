@@ -15,7 +15,7 @@ module WriteMaster
     input [buswidth-1:0] Datain,
     input memoryWrite,
     input devclock,
-    input [3:0] ID,
+    input [3:0] AWWID,
     input [3:0] WWID,
     input [31:0] WADDR,
     input [3:0] WLEN,
@@ -56,6 +56,7 @@ module WriteMaster
     reg [2:0] fifowsize [63:0];
     reg [1:0] fifoburst [63:0];
     reg [3:0] fifolen [63:0];
+    reg [3:0] fifowstrb [63:0];
     reg [6:0] fifosize;
     reg [6:0] fifoWAsize;
     reg once;
@@ -92,11 +93,10 @@ module WriteMaster
             if(memoryWrite && !once2)
             begin
                 fifodata[fifosize] <= Datain;
-                fifodata[fifosize] <= Datain;
                 fifosize <= fifosize + 1;
                 fifoWAsize <= fifoWAsize + 1;
                 fifowid[fifosize] <= WWID;
-                fifoawid[fifoWAsize] <= ID;
+                fifoawid[fifoWAsize] <= AWWID;
                 fifowaddr[fifoWAsize] <= WADDR;
                 fifolen[fifoWAsize] <= WLEN;
                 fifowsize[fifoWAsize] <= WSIZE;
@@ -136,10 +136,12 @@ module WriteMaster
                         if(i+WLEN > 63)
                         begin
                             fifodata[i] <= 32'b0;
+                            fifowid[i] <= 32'b0;
                         end
                         else
                         begin
-                        fifodata[i] <= fifodata[i+WLEN];
+                            fifodata[i] <= fifodata[i+WLEN];
+                            fifowid[i] <= fifowid[i+WLEN];
                         end
                     end
                 end
@@ -175,7 +177,8 @@ module WriteMaster
 
     always@(*)
     begin
-        AWID = fifowid[0];
+        WID = fifowid[0];
+        AWID = fifoawid[0];
         AWADDR = fifowaddr[0];
         AWLEN = fifolen[0];
         AWSIZE = fifowsize[0];

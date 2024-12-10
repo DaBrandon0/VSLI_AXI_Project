@@ -38,7 +38,6 @@ module WriteSlave
 
     reg [3:0] state;
     reg [3:0] nstate;
-    reg[15:0] burstsize;
 
     assign writeavail = ((state == 4'd1)&& WVALID && !WLAST);
     

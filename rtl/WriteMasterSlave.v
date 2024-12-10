@@ -6,8 +6,8 @@ module WriteMasterSlave(
     input devclock,
     input [31:0] datawrite,
     input [31:0] addresswrite,
-    input [3:0] ID,
     input [3:0] WID,
+    input [3:0] AWID,
     input [3:0] WLEN,
     input [2:0] WSIZE,
     input [1:0] WBURST,
@@ -18,7 +18,6 @@ module WriteMasterSlave(
     output [31:0] addressout,
     output [1:0] response,
     input finishwrite,
-    
     //master connect wires
     output Master_out_BREADY,
     output [3:0] Master_out_AWID,
@@ -36,7 +35,6 @@ module WriteMasterSlave(
     output [3:0] Master_out_WSTRB,
     output Master_out_WLAST,
     output Master_out_WVALID,
-    output [31:0] Master_out_readdata,
     input Master_in_AWREADY,
     input Master_in_WREADY,
     input Master_in_BVALID,
@@ -58,14 +56,13 @@ module WriteMasterSlave(
     input [3:0] Slave_in_WSTRB,
     input Slave_in_WLAST,
     input Slave_in_WVALID,
-    input [31:0] Slave_in_readdata,
     output Slave_out_AWREADY,
     output Slave_out_WREADY,
     output Slave_out_BVALID,
     output [3:0] Slave_out_BID
 );
 
-    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(Master_in_BID), .BRESP(BRESP), .BVALID(Master_in_BVALID), .BREADY(Master_out_BREADY), .Datain(datawrite), .ID(ID), .WWID(WWID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
+    WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(Master_in_BID), .BRESP(Master_out_BRESP), .BVALID(Master_in_BVALID), .BREADY(Master_out_BREADY), .Datain(datawrite), .AWWID(AWID), .WWID(WID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
     .WCACHE(WCACHE), .WPROT(WPROT), .response(response), .AWID(Master_out_AWID), .AWADDR(Master_out_AWADDR), .AWLEN(Master_out_AWLEN), .AWSIZE(Master_out_AWSIZE), .AWBURST(Master_out_AWBURST), .AWLOCK(Master_out_AWLOCK), .AWCACHE(Master_out_AWCACHE), .AWPROT(Master_out_AWPROT), .AWVALID(Master_out_AWVALID), .AWREADY(Master_in_AWREADY), .WID(Master_out_WID), .WDATA(Master_out_dataBus), .WSTRB(Master_out_WSTRB), .WLAST(Master_out_WLAST), .WVALID(Master_out_WVALID), .WREADY(Master_in_WREADY));
 
     WriteSlave slavewrite(ACLK, ARESETn, Dataout, addressout, finishwrite, writeavail, Slave_out_BID, Slave_out_BRESP, Slave_out_BVALID,
