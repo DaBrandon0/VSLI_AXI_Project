@@ -118,7 +118,7 @@ initial begin
 
     M0R_fifo_write0 = 0;
     M0R_fifo_write1 = 0;
-    #600;
+    #6000;
     $stop;
 end
 
