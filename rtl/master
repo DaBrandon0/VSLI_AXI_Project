@@ -12,6 +12,9 @@ fifo.v
 ReadMaster.v
 ReadSlave.v
 ReadMasterSlave.v
+WriteMaster.v
+WriteSlave.v
+WriteMasterSlave.v
 top.v
 
 // testbench

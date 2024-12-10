@@ -4,8 +4,11 @@ module tb_top;
 
 localparam BUS_WIDTH = 32;
 
+// global signals
 reg clk;
 reg clr;
+
+// master 0 read request
 reg M0R_fifo_write0;
 reg M0R_fifo_write1;
 reg               M0R_tag_in0;
@@ -27,6 +30,23 @@ reg [2:0]         M0R_prot_in1;
 wire [BUS_WIDTH-1 : 0] M0R_address_out;
 wire                  M0R_memread;
 wire [BUS_WIDTH-1:0]    M0R_data_in;
+
+// master 0 write request
+reg M0W_memoryWrite;
+reg [31:0] M0W_datawrite;
+reg [31:0] M0W_addresswrite;
+reg [3:0] M0W_ID;
+reg [3:0] M0W_WID;
+reg [3:0] M0W_WLEN;
+reg [2:0] M0W_WSIZE;
+reg [1:0] M0W_WBURST;
+reg [1:0] M0W_WLOCK;
+reg [3:0] M0W_WCACHE;
+reg [2:0] M0W_WPROT;
+wire M0W_writeavail;
+wire [31:0] M0W_Dataout;
+wire [31:0] M0W_addressout;
+wire M0W_finishwrite;
 
 localparam byte1 = 2'b00;
 localparam byte2 = 2'b01;
@@ -101,16 +121,38 @@ initial begin
     $stop;
 end
 
+initial begin
+    M0W_datawrite = 32'd1;
+    M0W_addresswrite = 32'd2;
+    M0W_ID = 4'd0;
+    M0W_WID = 4'd0;
+    M0W_WLEN = 4'd3;
+    M0W_WSIZE = 3'b101;
+    M0W_WBURST = 2'b00;
+    M0W_WLOCK = 2'b00;
+    M0W_WCACHE = 4'b0000;
+    M0W_WPROT = 3'b000;
+    M0W_memoryWrite = 0;
+    #30 M0W_memoryWrite = 1;
+    #30 M0W_memoryWrite = 0;
+    M0W_datawrite = 32'd2;
+    #30 M0W_memoryWrite = 1;
+    #30 M0W_memoryWrite = 0;
+    M0W_datawrite = 32'd3;
+    #30 M0W_memoryWrite = 1;
+    #30 M0W_memoryWrite = 0;
+end
+
 // slave 0 memory
 Memory Memory_inst (
     .CS(M0R_memread),
-    .WE(0),
+    .WE(M0W_writeavail),
     .CLK(clk),
-    .WADDR(0),
+    .WADDR(M0W_addressout),
     .RADDR(M0R_address_out[6:0]),
-    .Mem_in(0),
+    .Mem_in(M0W_Dataout),
     .Mem_out(M0R_data_in),
-    .writefinish()
+    .writefinish(M0W_finishwrite)
 );
 
 // top
@@ -124,6 +166,8 @@ top #(
 ) top_inst (
     .clk(clk),
     .clr(clr),
+
+    //master 0 read request
     .M0R_fifo_write0(M0R_fifo_write0),
     .M0R_fifo_write1(M0R_fifo_write1),
     .M0R_tag_in0(M0R_tag_in0),
@@ -142,9 +186,30 @@ top #(
     .M0R_cache_in1(M0R_cache_in1),
     .M0R_prot_in0(M0R_prot_in0),
     .M0R_prot_in1(M0R_prot_in1),
+
+    // master 0 write request
+    .M0W_memoryWrite(M0W_memoryWrite),
+    .M0W_datawrite(M0W_datawrite),
+    .M0W_addresswrite(M0W_addresswrite),
+    .M0W_ID(M0W_ID),
+    .M0W_WID(M0W_WID),
+    .M0W_WLEN(M0W_WLEN),
+    .M0W_WSIZE(M0W_WSIZE),
+    .M0W_WBURST(M0W_WBURST),
+    .M0W_WLOCK(M0W_WLOCK),
+    .M0W_WCACHE(M0W_WCACHE),
+    .M0W_WPROT(M0W_WPROT),
+
+    // master 0 read memory signals
     .M0R_address_out(M0R_address_out),
     .M0R_memread(M0R_memread),
-    .M0R_data_in(M0R_data_in)
+    .M0R_data_in(M0R_data_in),
+
+    // master 0 write memory signals
+    .M0W_writeavail(M0W_writeavail),
+    .M0W_Dataout(M0W_Dataout),
+    .M0W_addressout(M0W_addressout),
+    .M0W_finishwrite(M0W_finishwrite)
 );
 
 endmodule

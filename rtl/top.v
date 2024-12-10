@@ -32,10 +32,28 @@ module top #(
     input [2:0]         M0R_prot_in1,
 
     // master 0 write request
+    input M0W_memoryWrite,
+    input [31:0] M0W_datawrite,
+    input [31:0] M0W_addresswrite,
+    input [3:0] M0W_ID,
+    input [3:0] M0W_WID,
+    input [3:0] M0W_WLEN,
+    input [2:0] M0W_WSIZE,
+    input [1:0] M0W_WBURST,
+    input [1:0] M0W_WLOCK,
+    input [3:0] M0W_WCACHE,
+    input [2:0] M0W_WPROT,
+
     // master 0 read memory signals
     output [BUS_WIDTH-1 : 0] M0R_address_out,
     output                  M0R_memread,
-    input [BUS_WIDTH-1:0]    M0R_data_in
+    input [BUS_WIDTH-1:0]    M0R_data_in,
+
+    // master 0 write memory signals
+    output M0W_writeavail,
+    output [31:0] M0W_Dataout,
+    output [31:0] M0W_addressout,
+    input M0W_finishwrite
 );
 
 // interconnect
@@ -401,6 +419,69 @@ ReadMasterSlave #(
     .Slave_in_RREADY(S0_RREADY)
 );
 
-// WriteMasterSlave
+// WriteMasterSlave 0
+WriteMasterSlave WriteMasterSlave_inst (
+    .ACLK(clk),
+    .ARESETn(clr),
+    .devclock(clk),
+    .writeavail(M0W_writeavail),
+    .memoryWrite(M0W_memoryWrite),
+    .datawrite(M0W_datawrite),
+    .addresswrite(M0W_addresswrite),
+    .ID(M0W_ID),
+    .WID(M0W_WID),
+    .WLEN(M0W_WLEN),
+    .WSIZE(M0W_WSIZE),
+    .WBURST(M0W_WBURST),
+    .WLOCK(M0W_WLOCK),
+    .WCACHE(M0W_WCACHE),
+    .WPROT(M0W_WPROT),
+    .Dataout(M0W_Dataout),
+    .addressout(M0W_addressout),
+    .response(),
+    .finishwrite(M0W_finishwrite),
+    .Master_out_BREADY(M0_BREADY),
+    .Master_out_AWID(M0_AWID),
+    .Master_out_AWADDR(M0_AWADDR),
+    .Master_out_AWLEN(M0_AWLEN),
+    .Master_out_AWSIZE(M0_AWSIZE),
+    .Master_out_AWBURST(M0_AWBURST),
+    .Master_out_AWLOCK(M0_AWLOCK),
+    .Master_out_AWCACHE(M0_AWCACHE),
+    .Master_out_AWPROT(M0_AWPROT),
+    .Master_out_AWVALID(M0_AWVALID),
+    .Master_out_WID(M0_WID),
+    .Master_out_BRESP(M0_BRESP),
+    .Master_out_dataBus(M0_WDATA),
+    .Master_out_WSTRB(M0_WSTRB),
+    .Master_out_WLAST(M0_WLAST),
+    .Master_out_WVALID(M0_WVALID),
+    .Master_out_readdata(),
+    .Master_in_AWREADY(M0_AWREADY),
+    .Master_in_WREADY(M0_WREADY),
+    .Master_in_BVALID(M0_BVALID),
+    .Master_in_BID(M0_BID),
+    .Slave_in_BREADY(S0_BREADY),
+    .Slave_in_AWID(S0_AWID),
+    .Slave_in_AWADDR(S0_AWADDR),
+    .Slave_in_AWLEN(S0_AWLEN),
+    .Slave_in_AWSIZE(S0_AWSIZE),
+    .Slave_in_AWBURST(S0_AWBURST),
+    .Slave_in_AWLOCK(S0_AWLOCK),
+    .Slave_in_AWCACHE(S0_AWCACHE),
+    .Slave_in_AWPROT(S0_AWPROT),
+    .Slave_in_AWVALID(S0_AWVALID),
+    .Slave_in_WID(S0_WID),
+    .Slave_out_BRESP(S0_BRESP),
+    .Slave_in_dataBus(S0_WDATA),
+    .Slave_in_WSTRB(S0_WSTRB),
+    .Slave_in_WLAST(S0_WLAST),
+    .Slave_in_WVALID(S0_WVALID),
+    .Slave_in_readdata(),
+    .Slave_out_AWREADY(S0_AWREADY),
+    .Slave_out_WREADY(S0_WREADY),
+    .Slave_out_BVALID(S0_BVALID),
+    .Slave_out_BID(S0_BID)
+);
 
 endmodule
