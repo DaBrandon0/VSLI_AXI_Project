@@ -357,12 +357,12 @@ assign M1_BVALID    =   (S0_write_resp_en && S0_write_resp_sel == 1) ? S0_BVALID
                         (S1_write_resp_en && S1_write_resp_sel == 1) ? S1_BVALID :
                         {1'bz};
 
-assign S0_BREADY    =   (M0_write_data_en && M0_write_data_sel == 0) ? M0_WREADY :
-                        (M0_write_data_en && M0_write_data_sel == 1) ? M1_WREADY :
+assign S0_BREADY    =   (M0_write_data_en && M0_write_data_sel == 0) ? M0_BREADY :
+                        (M0_write_data_en && M0_write_data_sel == 1) ? M1_BREADY :
                         {1'b0};
 
-assign S1_BREADY    =   (M1_write_data_en && M1_write_data_sel == 0) ? M0_AWREADY :
-                        (M1_write_data_en && M1_write_data_sel == 1) ? M1_AWREADY :
+assign S1_BREADY    =   (M1_write_data_en && M1_write_data_sel == 0) ? M0_BREADY :
+                        (M1_write_data_en && M1_write_data_sel == 1) ? M1_BREADY :
                         {1'b0};
 
 // read address channel signals
@@ -495,12 +495,12 @@ assign M1_RVALID    =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RVALID :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RVALID :
                         {1'bz};
 
-assign S0_RREADY    =   (S0_read_data_en && S0_read_data_sel == 0) ? M0_RVALID :
-                        (S1_read_data_en && S1_read_data_sel == 0) ? M1_RVALID :
+assign S0_RREADY    =   (S0_read_data_en && S0_read_data_sel == 0) ? M0_RREADY :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? M1_RREADY :
                         {1'bz};
 
-assign S1_RREADY    =   (S0_read_data_en && S0_read_data_sel == 1) ? M0_RVALID :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? M1_RVALID :
+assign S1_RREADY    =   (S0_read_data_en && S0_read_data_sel == 1) ? M0_RREADY :
+                        (S1_read_data_en && S1_read_data_sel == 1) ? M1_RREADY :
                         {1'bz};
 
 

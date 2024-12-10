@@ -476,6 +476,14 @@ wire [(S*1)-1:0] B_grant_f;
 wire [(M*$clog2(S))-1:0] W_sel_f;
 wire [(S*$clog2(M))-1:0] B_sel_f;
 
+assign AW_valid_f = {M1_AWVALID, M0_AWVALID};
+assign AW_addr_f = {M1_AWADDR, M0_AWADDR};
+assign AW_id_f = {M1_AWID, M0_AWID};
+
+assign B_ready_f = {M1_BREADY, M0_BREADY};
+assign W_id_f = {S1_BID, S0_BID};
+assign B_valid_f = {S1_BVALID, S0_BVALID};
+
 assign M0_write_addr_sel = AW_sel_f[((0+1)*$clog2(S))-1 -: $clog2(S)];
 assign M0_write_addr_en = AW_grant_f[0];
 assign M1_write_addr_sel = AW_sel_f[((1+1)*$clog2(S))-1 -: $clog2(S)];

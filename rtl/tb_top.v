@@ -35,8 +35,8 @@ wire [BUS_WIDTH-1:0]    M0R_data_in;
 reg M0W_memoryWrite;
 reg [31:0] M0W_datawrite;
 reg [31:0] M0W_addresswrite;
-reg [3:0] M0W_ID;
 reg [3:0] M0W_WID;
+reg [3:0] M0W_AWID;
 reg [3:0] M0W_WLEN;
 reg [2:0] M0W_WSIZE;
 reg [1:0] M0W_WBURST;
@@ -48,6 +48,7 @@ wire [31:0] M0W_Dataout;
 wire [31:0] M0W_addressout;
 wire M0W_finishwrite;
 
+// master 0 read requests
 localparam byte1 = 2'b00;
 localparam byte2 = 2'b01;
 localparam byte4 = 2'b10;
@@ -121,11 +122,12 @@ initial begin
     $stop;
 end
 
+// master 0 write requests
 initial begin
     M0W_datawrite = 32'd1;
     M0W_addresswrite = 32'd2;
-    M0W_ID = 4'd0;
-    M0W_WID = 4'd0;
+    M0W_WID = 4'd2;
+    M0W_AWID = 4'd4;
     M0W_WLEN = 4'd3;
     M0W_WSIZE = 3'b101;
     M0W_WBURST = 2'b00;
@@ -145,7 +147,7 @@ end
 
 // slave 0 memory
 Memory Memory_inst (
-    .CS(M0R_memread),
+    .CS(1),
     .WE(M0W_writeavail),
     .CLK(clk),
     .WADDR(M0W_addressout),
@@ -191,8 +193,8 @@ top #(
     .M0W_memoryWrite(M0W_memoryWrite),
     .M0W_datawrite(M0W_datawrite),
     .M0W_addresswrite(M0W_addresswrite),
-    .M0W_ID(M0W_ID),
     .M0W_WID(M0W_WID),
+    .M0W_AWID(M0W_AWID),
     .M0W_WLEN(M0W_WLEN),
     .M0W_WSIZE(M0W_WSIZE),
     .M0W_WBURST(M0W_WBURST),
