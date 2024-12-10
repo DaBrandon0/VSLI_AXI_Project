@@ -199,7 +199,7 @@ module WriteMaster
         WLAST = 0;
         BREADY = 0;
         response = 2'bZZ;
-        if (fifosize >= AWLEN)
+        if (fifosize >= AWLEN && state == 0)
                 AWVALID = 1;
             else
                 AWVALID = 0;
