@@ -10,9 +10,9 @@ module fifo #(
     input wire write_en,
     input wire read_en,
     input [48 + tagbits:0] entry_in,
-    output reg [48 + tagbits:0] entry_out,
-    output reg empty,
-    output reg full
+    output [48 + tagbits:0] entry_out,
+    output empty,
+    output full
 );
     // order of things
     // input [TagBits-1:0] id_in,         //high 2 bits
@@ -53,17 +53,9 @@ module fifo #(
             end
         end
     end
-    always @(*)begin
-        if(!rst)begin
-            empty = 1;
-            full = 0;
-            entry_out = 0;
-        end 
-        else begin
-            empty = (count == 0);
-            full = (count == 2);
-            entry_out = fifo[read_ptr];
-        end
-    end
 
+assign entry_out = fifo[read_ptr];
+assign empty = count == 0;
+assign full = count == 2;
 endmodule
+
