@@ -111,7 +111,7 @@ module WriteSlave
         4'd3:
         begin
             BRESP = 2'b00; // default ok response 
-            BVALID = 0;
+            
             if(BREADY)
             begin
                 BVALID = 1;
@@ -119,6 +119,7 @@ module WriteSlave
             end
             else
             begin
+                BVALID = 0;
                 nstate = 0;
             end
         end
