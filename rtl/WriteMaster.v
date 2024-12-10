@@ -136,12 +136,10 @@ module WriteMaster
                         if(i+WLEN > 63)
                         begin
                             fifodata[i] <= 32'b0;
-                            fifowid[i] <= 32'b0;
                         end
                         else
                         begin
                         fifodata[i] <= fifodata[i+WLEN];
-                        fifowid[i] <= fifowid[i+WLEN];
                         end
                     end
                 end
