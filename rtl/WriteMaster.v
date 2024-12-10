@@ -117,6 +117,7 @@ module WriteMaster
                 begin
                 for (i = 0; i < 64; i = i + 1)
                 begin
+                    fifoawid[i] = fifoawid[i+1];
                     fifowid[i] = fifowid[i+1];
                     fifowaddr[i] = fifowaddr[i+1];
                     fifolen[i] = fifolen[i+1];
@@ -136,12 +137,10 @@ module WriteMaster
                         if(i+WLEN > 63)
                         begin
                             fifodata[i] <= 32'b0;
-                            fifowid[i] <= 32'b0;
                         end
                         else
                         begin
                             fifodata[i] <= fifodata[i+WLEN];
-                            fifowid[i] <= fifowid[i+WLEN];
                         end
                     end
                 end
@@ -216,7 +215,6 @@ module WriteMaster
         end
         4'd1:
         begin
-            sent2 = 1;
             BREADY = 1;
             WVALID = 1;
             WDATA = fifodata[transcount];
@@ -235,6 +233,7 @@ module WriteMaster
             if(BVALID)
             begin
                 response = BRESP;
+                sent2 = 1;
                 nstate = 0;
             end
             else
