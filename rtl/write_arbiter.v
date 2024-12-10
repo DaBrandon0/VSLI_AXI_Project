@@ -35,13 +35,13 @@ module write_arbiter #(
     reg [1-1:0] AW_grant [M-1:0];
     wire [$clog2(S)-1:0] AW_sel [M-1:0];
 
-    wire [(M*1)-1:0] B_ready [M-1:0];
+    wire [1-1:0] B_ready [M-1:0];
     wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] W_id [M-1:0];
-    wire [(S*1)-1:0] B_valid [S-1:0];
-    reg [(M*1)-1:0] W_grant [M-1:0];
-    reg [(S*1)-1:0] B_grant [S-1:0];
-    reg [(M*$clog2(S))-1:0] W_sel [M-1:0];
-    reg [(S*$clog2(M))-1:0] B_sel [S-1:0];
+    wire [1-1:0] B_valid [S-1:0];
+    reg [1-1:0] W_grant [M-1:0];
+    reg [1-1:0] B_grant [S-1:0];
+    reg [$clog2(S)-1:0] W_sel [M-1:0];
+    reg [$clog2(M)-1:0] B_sel [S-1:0];
 
     generate
         for (i = 0; i < M; i = i + 1) begin : UNFLATTEN_M
@@ -260,8 +260,8 @@ module write_arbiter #(
                 end
 
                 if (B_ready[W_sender] &&
-                    !ID_fifo_empty[W_sender][W_id[W_sender]] &&
-                    ID_fifo_head[W_sender][W_id[W_sender]] == W_sender) begin
+                    !ID_fifo_empty[W_sender][W_id[W_sender]] /* &&
+                    ID_fifo_head[W_sender][W_id[W_sender]] == W_sender */) begin
                     W_next_state = W_UNREGISTER;
                 end else begin
                     W_next_state = W_IDLE;

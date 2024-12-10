@@ -192,7 +192,7 @@ module read_arbiter #(
                     end
                 end
 
-                if (AR_finish[AR_sender]) begin
+                if (AR_finish[AR_sel[AR_sender]]) begin
                     AR_next_state = AR_IDLE;
                 end else begin
                     AR_next_state = AR_ALLOW;

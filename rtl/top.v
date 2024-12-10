@@ -53,7 +53,51 @@ module top #(
     output M0W_writeavail,
     output [31:0] M0W_Dataout,
     output [31:0] M0W_addressout,
-    input M0W_finishwrite
+    input M0W_finishwrite,
+
+    // master 1 read request
+    input M1R_fifo_write0,
+    input M1R_fifo_write1,
+    input               M1R_tag_in0,
+    input               M1R_tag_in1,
+    input [BUS_WIDTH-1:0]M1R_address_in0,
+    input [BUS_WIDTH-1:0]M1R_address_in1,
+    input [3:0]         M1R_len_in0,
+    input [3:0]         M1R_len_in1,
+    input [1:0]         M1R_size_in0,
+    input [1:0]         M1R_size_in1,
+    input [1:0]         M1R_burst_in0,
+    input [1:0]         M1R_burst_in1,
+    input [1:0]         M1R_lock_in0,
+    input [1:0]         M1R_lock_in1,
+    input [3:0]         M1R_cache_in0,
+    input [3:0]         M1R_cache_in1,
+    input [2:0]         M1R_prot_in0,
+    input [2:0]         M1R_prot_in1,
+
+    // master 0 write request
+    input M1W_memoryWrite,
+    input [31:0] M1W_datawrite,
+    input [31:0] M1W_addresswrite,
+    input [3:0] M1W_WID,
+    input [3:0] M1W_AWID,
+    input [3:0] M1W_WLEN,
+    input [2:0] M1W_WSIZE,
+    input [1:0] M1W_WBURST,
+    input [1:0] M1W_WLOCK,
+    input [3:0] M1W_WCACHE,
+    input [2:0] M1W_WPROT,
+
+    // master 1 read memory signals
+    output [BUS_WIDTH-1 : 0] M1R_address_out,
+    output                  M1R_memread,
+    input [BUS_WIDTH-1:0]    M1R_data_in,
+
+    // master 1 write memory signals
+    output M1W_writeavail,
+    output [31:0] M1W_Dataout,
+    output [31:0] M1W_addressout,
+    input M1W_finishwrite
 );
 
 // interconnect
@@ -361,7 +405,7 @@ interconnect #(
 // ReadMasterSlave 0
 ReadMasterSlave #(
     .BUS_WIDTH(BUS_WIDTH)
-) ReadMasterSlave_inst (
+) ReadMasterSlave_inst0 (
     .ACLK(clk),
     .ARESETn(clr),
     .fifo_write0(M0R_fifo_write0),
@@ -420,7 +464,7 @@ ReadMasterSlave #(
 );
 
 // WriteMasterSlave 0
-WriteMasterSlave WriteMasterSlave_inst (
+WriteMasterSlave WriteMasterSlave_inst0 (
     .ACLK(clk),
     .ARESETn(clr),
     .writeavail(M0W_writeavail),
@@ -480,6 +524,130 @@ WriteMasterSlave WriteMasterSlave_inst (
     .Slave_out_WREADY(S0_WREADY),
     .Slave_out_BVALID(S0_BVALID),
     .Slave_out_BID(S0_BID)
+);
+
+// ReadMasterSlave 1
+ReadMasterSlave #(
+    .BUS_WIDTH(BUS_WIDTH)
+) ReadMasterSlave_inst1 (
+    .ACLK(clk),
+    .ARESETn(clr),
+    .fifo_write0(M1R_fifo_write0),
+    .fifo_write1(M1R_fifo_write1),
+    .tag_in0(M1R_tag_in0),
+    .tag_in1(M1R_tag_in1),
+    .address_in0(M1R_address_in0),
+    .address_in1(M1R_address_in1),
+    .len_in0(M1R_len_in0),
+    .len_in1(M1R_len_in1),
+    .size_in0(M1R_size_in0),
+    .size_in1(M1R_size_in1),
+    .burst_in0(M1R_burst_in0),
+    .burst_in1(M1R_burst_in1),
+    .lock_in0(M1R_lock_in0),
+    .lock_in1(M1R_lock_in1),
+    .cache_in0(M1R_cache_in0),
+    .cache_in1(M1R_cache_in1),
+    .prot_in0(M1R_prot_in0),
+    .prot_in1(M1R_prot_in1),
+    .address_out(M1R_address_out),
+    .memread(M1R_memread),
+    .data_in(M1R_data_in),
+    .Master_out_ARID(M1_ARID),
+    .Master_out_ARADDR(M1_ARADDR),
+    .Master_out_ARLEN(M1_ARLEN),
+    .Master_out_ARSIZE(M1_ARSIZE),
+    .Master_out_ARBURST(M1_ARBURST),
+    .Master_out_ARLOCK(M1_ARLOCK),
+    .Master_out_ARCACHE(M1_ARCACHE),
+    .Master_out_ARPROT(M1_ARPROT),
+    .Master_out_ARVALID(M1_ARVALID),
+    .Master_in_ARREADY(M1_ARREADY),
+    .Slave_in_ARID(S1_ARID),
+    .Slave_in_ARADDR(S1_ARADDR),
+    .Slave_in_ARLEN(S1_ARLEN),
+    .Slave_in_ARSIZE(S1_ARSIZE),
+    .Slave_in_ARBURST(S1_ARBURST),
+    .Slave_in_ARLOCK(S1_ARLOCK),
+    .Slave_in_ARCACHE(S1_ARCACHE),
+    .Slave_in_ARPROT(S1_ARPROT),
+    .Slave_in_ARVALID(S1_ARVALID),
+    .Slave_out_ARREADY(S1_ARREADY),
+    .Master_in_RID(M1_RID),
+    .Master_in_RDATA(M1_RDATA),
+    .Master_in_RLAST(M1_RLAST),
+    .Master_in_RRESP(M1_RRESP),
+    .Master_in_RVALID(M1_RVALID),
+    .Master_out_RREADY(M1_RREADY),
+    .Slave_out_RID(S1_RID),
+    .Slave_out_RDATA(S1_RDATA),
+    .Slave_out_RLAST(S1_RLAST),
+    .Slave_out_RRESP(S1_RRESP),
+    .Slave_out_RVALID(S1_RVALID),
+    .Slave_in_RREADY(S1_RREADY)
+);
+
+// WriteMasterSlave 1
+WriteMasterSlave WriteMasterSlave_inst1 (
+    .ACLK(clk),
+    .ARESETn(clr),
+    .writeavail(M1W_writeavail),
+    .memoryWrite(M1W_memoryWrite),
+    .devclock(clk),
+    .datawrite(M1W_datawrite),
+    .addresswrite(M1W_addresswrite),
+    .WID(M1W_WID),
+    .AWID(M1W_AWID),
+    .WLEN(M1W_WLEN),
+    .WSIZE(M1W_WSIZE),
+    .WBURST(M1W_WBURST),
+    .WLOCK(M1W_WLOCK),
+    .WCACHE(M1W_WCACHE),
+    .WPROT(M1W_WPROT),
+    .Dataout(M1W_Dataout),
+    .addressout(M1W_addressout),
+    .response(),
+    .finishwrite(M1W_finishwrite),
+    .Master_out_BREADY(M1_BREADY),
+    .Master_out_AWID(M1_AWID),
+    .Master_out_AWADDR(M1_AWADDR),
+    .Master_out_AWLEN(M1_AWLEN),
+    .Master_out_AWSIZE(M1_AWSIZE),
+    .Master_out_AWBURST(M1_AWBURST),
+    .Master_out_AWLOCK(M1_AWLOCK),
+    .Master_out_AWCACHE(M1_AWCACHE),
+    .Master_out_AWPROT(M1_AWPROT),
+    .Master_out_AWVALID(M1_AWVALID),
+    .Master_out_WID(M1_WID),
+    .Master_out_BRESP(M1_BRESP),
+    .Master_out_dataBus(M1_WDATA),
+    .Master_out_WSTRB(M1_WSTRB),
+    .Master_out_WLAST(M1_WLAST),
+    .Master_out_WVALID(M1_WVALID),
+    .Master_in_AWREADY(M1_AWREADY),
+    .Master_in_WREADY(M1_WREADY),
+    .Master_in_BVALID(M1_BVALID),
+    .Master_in_BID(M1_BID),
+    .Slave_in_BREADY(S1_BREADY),
+    .Slave_in_AWID(S1_AWID),
+    .Slave_in_AWADDR(S1_AWADDR),
+    .Slave_in_AWLEN(S1_AWLEN),
+    .Slave_in_AWSIZE(S1_AWSIZE),
+    .Slave_in_AWBURST(S1_AWBURST),
+    .Slave_in_AWLOCK(S1_AWLOCK),
+    .Slave_in_AWCACHE(S1_AWCACHE),
+    .Slave_in_AWPROT(S1_AWPROT),
+    .Slave_in_AWVALID(S1_AWVALID),
+    .Slave_in_WID(S1_WID),
+    .Slave_out_BRESP(S1_BRESP),
+    .Slave_in_dataBus(S1_WDATA),
+    .Slave_in_WSTRB(S1_WSTRB),
+    .Slave_in_WLAST(S1_WLAST),
+    .Slave_in_WVALID(S1_WVALID),
+    .Slave_out_AWREADY(S1_AWREADY),
+    .Slave_out_WREADY(S1_WREADY),
+    .Slave_out_BVALID(S1_BVALID),
+    .Slave_out_BID(S1_BID)
 );
 
 endmodule

@@ -484,7 +484,7 @@ assign AW_addr_f = {M1_AWADDR, M0_AWADDR};
 assign AW_id_f = {M1_AWID, M0_AWID};
 
 assign B_ready_f = {M1_BREADY, M0_BREADY};
-assign W_id_f = {S1_BID, S0_BID};
+assign W_id_f = {M1_WID, M0_WID};
 assign B_valid_f = {S1_BVALID, S0_BVALID};
 
 assign M0_write_addr_sel = AW_sel_f[((0+1)*$clog2(S))-1 -: $clog2(S)];

@@ -358,10 +358,10 @@ assign M1_BVALID    =   (S0_write_resp_en && S0_write_resp_sel == 1) ? S0_BVALID
                         {1'bz};
 
 assign S0_BREADY    =   (M0_write_data_en && M0_write_data_sel == 0) ? M0_BREADY :
-                        (M0_write_data_en && M0_write_data_sel == 1) ? M1_BREADY :
+                        (M1_write_data_en && M1_write_data_sel == 0) ? M1_BREADY :
                         {1'b0};
 
-assign S1_BREADY    =   (M1_write_data_en && M1_write_data_sel == 0) ? M0_BREADY :
+assign S1_BREADY    =   (M0_write_data_en && M0_write_data_sel == 1) ? M0_BREADY :
                         (M1_write_data_en && M1_write_data_sel == 1) ? M1_BREADY :
                         {1'b0};
 
@@ -448,58 +448,58 @@ assign S1_ARVALID = (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARVALID :
 
 // read data channel signals
 assign M0_RID       =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RID :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? S1_RID :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? S1_RID :
                         {ID_WIDTH{1'bz}};
 
 
 assign M0_RDATA     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RDATA :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? S1_RDATA :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? S1_RDATA :
                         {BUS_WIDTH{1'bz}};
                 
 
 assign M0_RRESP     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RRESP :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? S1_RRESP :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? S1_RRESP :
                         {4'bz};
                 
 
 assign M0_RLAST     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RLAST :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? S1_RLAST :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? S1_RLAST :
                         {1'bz};
                 
 
 assign M0_RVALID    =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RVALID :
-                        (S1_read_data_en && S1_read_data_sel == 1) ? S1_RVALID :
+                        (S1_read_data_en && S1_read_data_sel == 0) ? S1_RVALID :
                         {1'bz};
                 
-assign M1_RID       =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RID :
+assign M1_RID       =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RID :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RID :
                         {ID_WIDTH{1'bz}};
 
 
-assign M1_RDATA     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RDATA :
+assign M1_RDATA     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RDATA :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RDATA :
                         {BUS_WIDTH{1'bz}};
                 
 
-assign M1_RRESP     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RRESP :
+assign M1_RRESP     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RRESP :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RRESP :
                         {4'bz};
                 
 
-assign M1_RLAST     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RLAST :
+assign M1_RLAST     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RLAST :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RLAST :
                         {1'bz};
                 
 
-assign M1_RVALID    =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RVALID :
+assign M1_RVALID    =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RVALID :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RVALID :
                         {1'bz};
 
 assign S0_RREADY    =   (S0_read_data_en && S0_read_data_sel == 0) ? M0_RREADY :
-                        (S1_read_data_en && S1_read_data_sel == 0) ? M1_RREADY :
+                        (S0_read_data_en && S0_read_data_sel == 1) ? M1_RREADY :
                         {1'bz};
 
-assign S1_RREADY    =   (S0_read_data_en && S0_read_data_sel == 1) ? M0_RREADY :
+assign S1_RREADY    =   (S1_read_data_en && S1_read_data_sel == 0) ? M0_RREADY :
                         (S1_read_data_en && S1_read_data_sel == 1) ? M1_RREADY :
                         {1'bz};
 
