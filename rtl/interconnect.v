@@ -408,6 +408,7 @@ crossbar2x2 #(
 
 // read arbiter
 wire [(M*1)-1:0] AR_request_f;
+wire [(S*1)-1:0] AR_finish_f;
 wire [(M*ADDR_WIDTH)-1:0] AR_addr_f;
 wire [(M*$clog2(NUM_OUTSTANDING_TRANS))-1:0] AR_id_f;
 wire [(M*1)-1:0] AR_grant_f;
@@ -420,6 +421,7 @@ wire [(S*1)-1:0] R_grant_f;
 wire [(S*$clog2(M))-1:0] R_sel_f;
 
 assign AR_request_f = {M1_ARVALID, M0_ARVALID};
+assign AR_finish_f = {S1_ARREADY, S0_ARREADY};
 assign AR_addr_f = {M1_ARADDR, M0_ARADDR};
 assign AR_id_f = {M1_ARID, M0_ARID};
 
@@ -448,6 +450,7 @@ read_arbiter #(
 
     // read address channel signals
     .AR_request_f(AR_request_f),
+    .AR_finish_f(AR_finish_f),
     .AR_addr_f(AR_addr_f),
     .AR_id_f(AR_id_f),
     .AR_grant_f(AR_grant_f),

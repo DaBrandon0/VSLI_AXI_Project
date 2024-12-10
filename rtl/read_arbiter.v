@@ -11,6 +11,7 @@ module read_arbiter #(
 
     // read address channel signals
     input [(M*1)-1:0] AR_request_f,
+    input [(S*1)-1:0] AR_finish_f,
     input [(M*ADDR_WIDTH)-1:0] AR_addr_f,
     input [(M*$clog2(NUM_OUTSTANDING_TRANS))-1:0] AR_id_f,
     output [(M*1)-1:0] AR_grant_f,
@@ -28,6 +29,7 @@ module read_arbiter #(
 
     // unflatten signals
     wire [1-1:0] AR_request [M-1:0];
+    wire [1-1:0] AR_finish [S-1:0];
     wire [ADDR_WIDTH-1:0] AR_addr [M-1:0];
     wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] AR_id [M-1:0];
     reg [1-1:0] AR_grant [M-1:0];
@@ -43,6 +45,7 @@ module read_arbiter #(
     generate
         for (i = 0; i < M; i = i + 1) begin : UNFLATTEN
             assign AR_request[i] = AR_request_f[i];
+            assign AR_finish[i] = AR_finish_f[i];
             assign AR_addr[i] = AR_addr_f[(i+1)*ADDR_WIDTH-1:i*ADDR_WIDTH];
             assign AR_id[i] = AR_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
             assign AR_grant_f[i] = AR_grant[i];
@@ -189,7 +192,7 @@ module read_arbiter #(
                     end
                 end
 
-                if (!AR_request[AR_sender]) begin
+                if (AR_finish[AR_sender]) begin
                     AR_next_state = AR_IDLE;
                 end else begin
                     AR_next_state = AR_ALLOW;
