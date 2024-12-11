@@ -102,7 +102,7 @@ initial begin
     //reads 4 transfers of size 16 bytes from addy x00
     //reads mem[0]-mem[8]
     M0R_tag_in0 = 0;
-    M0R_address_in0 = 32'h00000000;
+    M0R_address_in0 = 32'h00000080;
     M0R_len_in0 = 3;
     M0R_size_in0 = 1;
     M0R_burst_in0 = 1; //incr
@@ -114,7 +114,7 @@ initial begin
     //reads 3 transfers of size 4 bytes from addy x08
     //reads mem[8]-mem[19]
     M0R_tag_in1 = 1;
-    M0R_address_in1 = 32'h00000008;
+    M0R_address_in1 = 32'h00000088;
     M0R_len_in1 = 2;
     M0R_size_in1 = 2; 
     M0R_burst_in1 = 1; //incr
@@ -129,7 +129,7 @@ initial begin
     //4 transfers size 1 byte from address #d20
     M0R_fifo_write0 = 0;
     M0R_tag_in0 = 0;
-    M0R_address_in0 = 32'h00000014;
+    M0R_address_in0 = 32'h00000094;
     M0R_len_in0 = 2;
     M0R_size_in0 = 0;
     M0R_burst_in0 = 1; //incr
@@ -141,7 +141,7 @@ initial begin
     //2 transfers size 4 bytes from address #d30
     M0R_fifo_write1 = 0;
     M0R_tag_in1 = 1;
-    M0R_address_in1 = 32'h0000001E;
+    M0R_address_in1 = 32'h0000009E;
     M0R_len_in1 = 1;
     M0R_size_in1 = 2; 
     M0R_burst_in1 = 1; //incr
