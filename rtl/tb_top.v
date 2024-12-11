@@ -160,7 +160,7 @@ end
 // master 0 write requests
 initial begin
     M0W_datawrite = 32'd1;
-    M0W_addresswrite = 32'd2;
+    M0W_addresswrite = 32'h82;
     M0W_WID = 4'd2;
     M0W_AWID = 4'd4;
     M0W_WLEN = 4'd3;

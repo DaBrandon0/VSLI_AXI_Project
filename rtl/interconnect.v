@@ -472,7 +472,7 @@ wire [(M*1)-1:0] AW_grant_f;
 wire [(M*$clog2(S))-1:0] AW_sel_f;
 
 wire [(M*1)-1:0] B_ready_f;
-wire [(M*($clog2(NUM_OUTSTANDING_TRANS)))-1:0] W_id_f;
+wire [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] W_id_f;
 wire [(S*1)-1:0] B_valid_f;
 wire [(M*1)-1:0] W_grant_f;
 wire [(S*1)-1:0] B_grant_f;
