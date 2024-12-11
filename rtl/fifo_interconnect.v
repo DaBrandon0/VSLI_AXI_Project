@@ -42,13 +42,13 @@ module fifo_interconnect #(
             // write
             if (write_allowed) begin
                 mem[write_ptr] <= data_in;
-                write_ptr <= write_ptr + 1;
+                write_ptr <= (write_ptr + 1) % DEPTH;
             end
 
             // read
             if (read_allowed) begin
                 data_out <= mem[read_ptr];
-                read_ptr <= read_ptr + 1;
+                read_ptr <= (read_ptr + 1) % DEPTH;
             end
 
             // count
