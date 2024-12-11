@@ -81,7 +81,7 @@ module WriteSlave
                     else
                         nstate = 1;
                     case(AWBURST)
-                    2'b01: Addressout = Addressout + 2**AWSIZE;
+                    2'b01: Addressout = Addressout + 1;
                     2'b10: Addressout = AWADDR;// wrapping burst implementation specific to cache size (not specified)
                     default: Addressout = Addressout;
                     endcase
@@ -100,7 +100,7 @@ module WriteSlave
                     nstate = 1;
                 case(AWBURST)
                     2'b00: Addressout = Addressout;
-                    2'b01: Addressout = Addressout + 2**AWSIZE;
+                    2'b01: Addressout = Addressout + 1;
                     2'b10: Addressout = AWADDR;// wrapping burst implementation specific to cache size (not specified)
                     default: Addressout = Addressout;
                 endcase

@@ -1,0 +1,29 @@
+ 
+****************************************
+Report : area
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 14:26:34 2024
+****************************************
+
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+
+Number of ports:                         7296
+Number of nets:                        106842
+Number of cells:                       100311
+Number of combinational cells:          87628
+Number of sequential cells:             12425
+Number of macros/black boxes:               0
+Number of buf/inv:                      34268
+Number of references:                       5
+
+Combinational area:             215512.411487
+Buf/Inv area:                    61272.744994
+Noncombinational area:           94627.773015
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                310140.184502
+Total area:                 undefined
