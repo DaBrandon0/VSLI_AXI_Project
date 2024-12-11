@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
-module fifo #(
-    parameter tagbits = 2
+module fifo_ReadMaster #(
+    parameter tagbits = 1
 )
 //50 bits per entry
 (

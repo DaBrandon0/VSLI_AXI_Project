@@ -13,9 +13,9 @@
 //interconnect must wire Master_out_signal to Slave_in_signal, and Slave_out_signal to Master_in_signal
 
 `timescale 1ns/1ps
+`define buswidth 32
 
 module ReadMasterSlave
-    #(parameter buswidth = 32)
 (
     input ACLK, 
     input ARESETn,
@@ -25,7 +25,7 @@ module ReadMasterSlave
     input fifo_write1,
     //50 bit encoded transaction data for master
     input               tag_in0,        input               tag_in1,        //input is 1 bit tag
-    input [buswidth-1:0]address_in0,    input [buswidth-1:0]address_in1,
+    input [`buswidth-1:0]address_in0,    input [`buswidth-1:0]address_in1,
     input [3:0]         len_in0,        input [3:0]         len_in1,        
     input [1:0]         size_in0,       input [1:0]         size_in1,
     input [1:0]         burst_in0,      input [1:0]         burst_in1,
@@ -36,14 +36,14 @@ module ReadMasterSlave
     //MEMORY ACCESS SIGNALS
     //slave sends address and read request out. 
     //requires data_in to instantly come back from memory module
-    output [buswidth-1 : 0] address_out,
+    output [`buswidth-1 : 0] address_out,
     output                  memread,
-    input [buswidth-1:0]    data_in,
+    input [`buswidth-1:0]    data_in,
     
     //AR SIGNALS--------
     //Master
     output                 Master_out_ARID,             //IMPORTANT master out 1 bit ID
-    output [buswidth-1: 0] Master_out_ARADDR,
+    output [`buswidth-1: 0] Master_out_ARADDR,
     output [3:0]           Master_out_ARLEN,
     output [1:0]           Master_out_ARSIZE,
     output [1:0]           Master_out_ARBURST,
@@ -54,7 +54,7 @@ module ReadMasterSlave
     input  Master_in_ARREADY,
     //Slave
     input [1:0]            Slave_in_ARID,               //slave in 2 bit id
-    input [buswidth-1: 0]  Slave_in_ARADDR,
+    input [`buswidth-1: 0]  Slave_in_ARADDR,
     input [3:0]            Slave_in_ARLEN,
     input [1:0]            Slave_in_ARSIZE,
     input [1:0]            Slave_in_ARBURST,
@@ -67,7 +67,7 @@ module ReadMasterSlave
     //DATA SIGNALS--------
     //Master
     input                  Master_in_RID,
-    input [buswidth - 1:0] Master_in_RDATA,
+    input [`buswidth - 1:0] Master_in_RDATA,
     input                  Master_in_RLAST,
     input [1:0]            Master_in_RRESP,
     input  Master_in_RVALID,
@@ -75,7 +75,7 @@ module ReadMasterSlave
 
     //Slave
     output [1:0]            Slave_out_RID,
-    output [buswidth - 1:0] Slave_out_RDATA,
+    output [`buswidth - 1:0] Slave_out_RDATA,
     output                  Slave_out_RLAST,
     output [1:0]            Slave_out_RRESP,
     output Slave_out_RVALID,

@@ -41,8 +41,8 @@ reg fifo_read[0:1];
 reg fifo_index; //shows which fifo we're using
 wire [48 + tagbits:0] AR_fifo_out[0:1]; 
 wire fifo_empty[0:1], fifo_full[0:1];
-fifo #(.tagbits(1))fifo_1(ACLK, ARESETn,fifo_write0, fifo_read[0], AR_fifo_in0, AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
-fifo #(.tagbits(1))fifo_2(ACLK, ARESETn,fifo_write1, fifo_read[1], AR_fifo_in1, AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
+fifo_ReadMaster #(.tagbits(1))fifo_1(ACLK, ARESETn,fifo_write0, fifo_read[0], AR_fifo_in0, AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
+fifo_ReadMaster #(.tagbits(1))fifo_2(ACLK, ARESETn,fifo_write1, fifo_read[1], AR_fifo_in1, AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
 
 //--------------AR CHANNEL STATE MACHINE -------------------------------------------
 

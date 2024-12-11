@@ -8,7 +8,8 @@ write_arbiter.v
 crossbar2x2.v
 interconnect.v
 memory.v
-fifo.v
+fifo_ReadMaster.v
+fifo_ReadSlave.v
 ReadMaster.v
 ReadSlave.v
 ReadMasterSlave.v

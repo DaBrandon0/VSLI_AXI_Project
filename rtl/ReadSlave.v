@@ -42,10 +42,10 @@ reg  [48+tagbits:0] AR_fifo_in  [0:3];
 wire [48+tagbits:0] AR_fifo_out [0:3];
 wire fifo_empty[0:3];
 wire fifo_full[0:3]; //actually should never happen trying to write multiple into one fifo. 
-fifo #(.tagbits(tagbits)) m0id0(ACLK, ARESETn, fifo_write[0], fifo_read[0], AR_fifo_in[0], AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
-fifo #(.tagbits(tagbits)) m0id1(ACLK, ARESETn, fifo_write[1], fifo_read[1], AR_fifo_in[1], AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
-fifo #(.tagbits(tagbits)) m1id0(ACLK, ARESETn, fifo_write[2], fifo_read[2], AR_fifo_in[2], AR_fifo_out[2], fifo_empty[2], fifo_full[2]);
-fifo #(.tagbits(tagbits)) m1id1(ACLK, ARESETn, fifo_write[3], fifo_read[3], AR_fifo_in[3], AR_fifo_out[3], fifo_empty[3], fifo_full[3]);
+fifo_ReadSlave #(.tagbits(tagbits)) m0id0(ACLK, ARESETn, fifo_write[0], fifo_read[0], AR_fifo_in[0], AR_fifo_out[0], fifo_empty[0], fifo_full[0]);
+fifo_ReadSlave #(.tagbits(tagbits)) m0id1(ACLK, ARESETn, fifo_write[1], fifo_read[1], AR_fifo_in[1], AR_fifo_out[1], fifo_empty[1], fifo_full[1]);
+fifo_ReadSlave #(.tagbits(tagbits)) m1id0(ACLK, ARESETn, fifo_write[2], fifo_read[2], AR_fifo_in[2], AR_fifo_out[2], fifo_empty[2], fifo_full[2]);
+fifo_ReadSlave #(.tagbits(tagbits)) m1id1(ACLK, ARESETn, fifo_write[3], fifo_read[3], AR_fifo_in[3], AR_fifo_out[3], fifo_empty[3], fifo_full[3]);
 
 reg [tagbits-1:0]    ID;
 reg [BusWidth-1 : 0] ADDR;

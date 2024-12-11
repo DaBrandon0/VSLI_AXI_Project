@@ -105,7 +105,7 @@ module crossbar2x2 #(
     input [ID_WIDTH-1:0] M0_ARID,
     input [ADDR_WIDTH-1:0] M0_ARADDR,
     input [4-1:0] M0_ARLEN,
-    input [3-1:0] M0_ARSIZE,
+    input [2-1:0] M0_ARSIZE,
     input [2-1:0] M0_ARBURST,
     input [2-1:0] M0_ARLOCK,
     input [4-1:0] M0_ARCACHE,
@@ -116,7 +116,7 @@ module crossbar2x2 #(
     input [ID_WIDTH-1:0] M1_ARID,
     input [ADDR_WIDTH-1:0] M1_ARADDR,
     input [4-1:0] M1_ARLEN,
-    input [3-1:0] M1_ARSIZE,
+    input [2-1:0] M1_ARSIZE,
     input [2-1:0] M1_ARBURST,
     input [2-1:0] M1_ARLOCK,
     input [4-1:0] M1_ARCACHE,
@@ -127,7 +127,7 @@ module crossbar2x2 #(
     output [(ID_WIDTH+$clog2(`M))-1:0] S0_ARID,
     output [ADDR_WIDTH-1:0] S0_ARADDR,
     output [4-1:0] S0_ARLEN,
-    output [3-1:0] S0_ARSIZE,
+    output [2-1:0] S0_ARSIZE,
     output [2-1:0] S0_ARBURST,
     output [2-1:0] S0_ARLOCK,
     output [4-1:0] S0_ARCACHE,
@@ -138,7 +138,7 @@ module crossbar2x2 #(
     output [(ID_WIDTH+$clog2(`M))-1:0] S1_ARID,
     output [ADDR_WIDTH-1:0] S1_ARADDR,
     output [4-1:0] S1_ARLEN,
-    output [3-1:0] S1_ARSIZE,
+    output [2-1:0] S1_ARSIZE,
     output [2-1:0] S1_ARBURST,
     output [2-1:0] S1_ARLOCK,
     output [4-1:0] S1_ARCACHE,
@@ -149,28 +149,28 @@ module crossbar2x2 #(
     // read data channel signals
     output [ID_WIDTH-1:0] M0_RID,
     output [BUS_WIDTH-1:0] M0_RDATA,
-    output [4-1:0] M0_RRESP,
+    output [2-1:0] M0_RRESP,
     output M0_RLAST,
     output M0_RVALID,
     input M0_RREADY,
 
     output [ID_WIDTH-1:0] M1_RID,
     output [BUS_WIDTH-1:0] M1_RDATA,
-    output [4-1:0] M1_RRESP,
+    output [2-1:0] M1_RRESP,
     output M1_RLAST,
     output M1_RVALID,
     input M1_RREADY,
 
     input [(ID_WIDTH+$clog2(`M))-1:0] S0_RID,
     input [BUS_WIDTH-1:0] S0_RDATA,
-    input [4-1:0] S0_RRESP,
+    input [2-1:0] S0_RRESP,
     input S0_RLAST,
     input S0_RVALID,
     output S0_RREADY,
 
     input [(ID_WIDTH+$clog2(`M))-1:0] S1_RID,
     input [BUS_WIDTH-1:0] S1_RDATA,
-    input [4-1:0] S1_RRESP,
+    input [2-1:0] S1_RRESP,
     input S1_RLAST,
     input S1_RVALID,
     output S1_RREADY,
@@ -388,7 +388,7 @@ assign S0_ARLEN =   (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARLEN :
 
 assign S0_ARSIZE =  (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARSIZE :
                     (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARSIZE :
-                    {3'bz};
+                    {2'bz};
 
 assign S0_ARBURST = (M0_read_addr_en && M0_read_addr_sel == 0) ? M0_ARBURST :
                     (M1_read_addr_en && M1_read_addr_sel == 0) ? M1_ARBURST :
@@ -424,7 +424,7 @@ assign S1_ARLEN =   (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARLEN :
 
 assign S1_ARSIZE =  (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARSIZE :
                     (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARSIZE :
-                    {3'bz};
+                    {2'bz};
 
 assign S1_ARBURST = (M0_read_addr_en && M0_read_addr_sel == 1) ? M0_ARBURST :
                     (M1_read_addr_en && M1_read_addr_sel == 1) ? M1_ARBURST :
@@ -459,7 +459,7 @@ assign M0_RDATA     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RDATA :
 
 assign M0_RRESP     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RRESP :
                         (S1_read_data_en && S1_read_data_sel == 0) ? S1_RRESP :
-                        {4'bz};
+                        {2'bz};
                 
 
 assign M0_RLAST     =   (S0_read_data_en && S0_read_data_sel == 0) ? S0_RLAST :
@@ -483,7 +483,7 @@ assign M1_RDATA     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RDATA :
 
 assign M1_RRESP     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RRESP :
                         (S1_read_data_en && S1_read_data_sel == 1) ? S1_RRESP :
-                        {4'bz};
+                        {2'bz};
                 
 
 assign M1_RLAST     =   (S0_read_data_en && S0_read_data_sel == 1) ? S0_RLAST :

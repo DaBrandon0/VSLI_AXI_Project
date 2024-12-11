@@ -184,7 +184,7 @@ wire S1_BREADY;
 wire [ID_WIDTH-1:0] M0_ARID;
 wire [ADDR_WIDTH-1:0] M0_ARADDR;
 wire [4-1:0] M0_ARLEN;
-wire [3-1:0] M0_ARSIZE;
+wire [2-1:0] M0_ARSIZE;
 wire [2-1:0] M0_ARBURST;
 wire [2-1:0] M0_ARLOCK;
 wire [4-1:0] M0_ARCACHE;
@@ -194,7 +194,7 @@ wire M0_ARREADY;
 wire [ID_WIDTH-1:0] M1_ARID;
 wire [ADDR_WIDTH-1:0] M1_ARADDR;
 wire [4-1:0] M1_ARLEN;
-wire [3-1:0] M1_ARSIZE;
+wire [2-1:0] M1_ARSIZE;
 wire [2-1:0] M1_ARBURST;
 wire [2-1:0] M1_ARLOCK;
 wire [4-1:0] M1_ARCACHE;
@@ -204,7 +204,7 @@ wire M1_ARREADY;
 wire [(ID_WIDTH+$clog2(M))-1:0] S0_ARID;
 wire [ADDR_WIDTH-1:0] S0_ARADDR;
 wire [4-1:0] S0_ARLEN;
-wire [3-1:0] S0_ARSIZE;
+wire [2-1:0] S0_ARSIZE;
 wire [2-1:0] S0_ARBURST;
 wire [2-1:0] S0_ARLOCK;
 wire [4-1:0] S0_ARCACHE;
@@ -214,7 +214,7 @@ wire S0_ARREADY;
 wire [(ID_WIDTH+$clog2(M))-1:0] S1_ARID;
 wire [ADDR_WIDTH-1:0] S1_ARADDR;
 wire [4-1:0] S1_ARLEN;
-wire [3-1:0] S1_ARSIZE;
+wire [2-1:0] S1_ARSIZE;
 wire [2-1:0] S1_ARBURST;
 wire [2-1:0] S1_ARLOCK;
 wire [4-1:0] S1_ARCACHE;
@@ -223,25 +223,25 @@ wire S1_ARVALID;
 wire S1_ARREADY;
 wire [ID_WIDTH-1:0] M0_RID;
 wire [BUS_WIDTH-1:0] M0_RDATA;
-wire [4-1:0] M0_RRESP;
+wire [2-1:0] M0_RRESP;
 wire M0_RLAST;
 wire M0_RVALID;
 wire M0_RREADY;
 wire [ID_WIDTH-1:0] M1_RID;
 wire [BUS_WIDTH-1:0] M1_RDATA;
-wire [4-1:0] M1_RRESP;
+wire [2-1:0] M1_RRESP;
 wire M1_RLAST;
 wire M1_RVALID;
 wire M1_RREADY;
 wire [(ID_WIDTH+$clog2(M))-1:0] S0_RID;
 wire [BUS_WIDTH-1:0] S0_RDATA;
-wire [4-1:0] S0_RRESP;
+wire [2-1:0] S0_RRESP;
 wire S0_RLAST;
 wire S0_RVALID;
 wire S0_RREADY;
 wire [(ID_WIDTH+$clog2(M))-1:0] S1_RID;
 wire [BUS_WIDTH-1:0] S1_RDATA;
-wire [4-1:0] S1_RRESP;
+wire [2-1:0] S1_RRESP;
 wire S1_RLAST;
 wire S1_RVALID;
 wire S1_RREADY;
@@ -403,9 +403,7 @@ interconnect #(
 );
 
 // ReadMasterSlave 0
-ReadMasterSlave #(
-    .BUS_WIDTH(BUS_WIDTH)
-) ReadMasterSlave_inst0 (
+ReadMasterSlave ReadMasterSlave_inst0 (
     .ACLK(clk),
     .ARESETn(clr),
     .fifo_write0(M0R_fifo_write0),
@@ -527,9 +525,7 @@ WriteMasterSlave WriteMasterSlave_inst0 (
 );
 
 // ReadMasterSlave 1
-ReadMasterSlave #(
-    .BUS_WIDTH(BUS_WIDTH)
-) ReadMasterSlave_inst1 (
+ReadMasterSlave ReadMasterSlave_inst1 (
     .ACLK(clk),
     .ARESETn(clr),
     .fifo_write0(M1R_fifo_write0),
