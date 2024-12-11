@@ -18,7 +18,7 @@ module write_arbiter #(
 
     // write data/response channel signals
     input [(M*1)-1:0] B_ready_f,
-    input [(M*($clog2(NUM_OUTSTANDING_TRANS)))-1:0] W_id_f,
+    input [(M*($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS)))-1:0] W_id_f,
     input [(S*1)-1:0] B_valid_f,
     output [(M*1)-1:0] W_grant_f,
     output [(S*1)-1:0] B_grant_f,
@@ -31,7 +31,7 @@ module write_arbiter #(
     // unflatten signals
     wire [1-1:0] AW_valid [M-1:0];
     wire [ADDR_WIDTH-1:0] AW_addr [M-1:0];
-    wire [($clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id [M-1:0];
+    wire [($clog2(M)+$clog2(NUM_OUTSTANDING_TRANS))-1:0] AW_id [M-1:0];
     reg [1-1:0] AW_grant [M-1:0];
     wire [$clog2(S)-1:0] AW_sel [M-1:0];
 
@@ -52,16 +52,17 @@ module write_arbiter #(
             assign AW_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = AW_sel[i];
 
             assign B_ready[i] = B_ready_f[i];
-            assign W_id[i] = W_id_f[(i+1)*$clog2(NUM_OUTSTANDING_TRANS)-1:i*$clog2(NUM_OUTSTANDING_TRANS)];
             assign W_grant_f[i] = W_grant[i];
             assign W_sel_f[(i+1)*$clog2(S)-1:i*$clog2(S)] = W_sel[i];
         end
-        for (i = 0; i < M; i = i + 1) begin : UNFLATTEN_S
+        for (i = 0; i < S; i = i + 1) begin : UNFLATTEN_S
             assign B_valid[i] = B_valid_f[i];
             assign B_grant_f[i] = B_grant[i];
             assign B_sel_f[(i+1)*$clog2(M)-1:i*$clog2(M)] = B_sel[i];
         end
     endgenerate
+    assign W_id[0] = W_id_f[1:0];
+    assign W_id[1] = W_id_f[3:2];
 
     // address decode
     generate
@@ -69,7 +70,7 @@ module write_arbiter #(
             addr_decode #(
                 .ADDR_WIDTH(ADDR_WIDTH),
                 .S(S),
-                .SLICE_SIZE(32'h00010000)
+                .SLICE_SIZE(32'h00000080)
             ) addr_decode (
                 .addr(AW_addr[i]),
                 .sel(AW_sel[i])
@@ -109,218 +110,332 @@ module write_arbiter #(
         end
     endgenerate
 
-    // write address channel arbiter
-    reg [$clog2(M)-1:0] AW_sender;
-    reg [2-1:0] AW_curr_state, AW_next_state;
+    // write address channel arbiter 0
+    wire [$clog2(M)-1:0] M0_AW_sender = 0;
+    reg [2-1:0] M0_AW_curr_state, M0_AW_next_state;
 
-    localparam AW_IDLE     = 0;
-    localparam AW_REGISTER = 1;
-    localparam AW_ALLOW    = 2;
+    localparam M0_AW_IDLE     = 0;
+    localparam M0_AW_REGISTER = 1;
+    localparam M0_AW_ALLOW    = 2;
 
     always @(posedge clk or negedge clr) begin
         if (!clr) begin
-            AW_curr_state <= AW_IDLE;
-            AW_sender <= 0;
+            M0_AW_curr_state <= M0_AW_IDLE;
         end else begin
-            AW_curr_state <= AW_next_state;
+            M0_AW_curr_state <= M0_AW_next_state;
+        end
+    end
 
-            case (AW_curr_state)
-                AW_IDLE: begin
-                    if (AW_next_state == AW_IDLE) begin
-                        AW_sender <= (AW_sender + 1) % M;
-                    end
+    always @(*) begin
+        case (M0_AW_curr_state)
+            M0_AW_IDLE: begin
+                AW_grant[M0_AW_sender] = 0;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M0_AW_sender][y] = 0;
+                    ID_fifo_data_in[M0_AW_sender][y] = 0;
                 end
 
-                AW_ALLOW: begin
-                    if (AW_next_state == AW_IDLE) begin
-                        AW_sender <= (AW_sender + 1) % M;
-                    end
+                if (AW_valid[M0_AW_sender] && !ID_fifo_full[M0_AW_sender][AW_id[M0_AW_sender]]) begin
+                    M0_AW_next_state = M0_AW_REGISTER;
+                end else begin
+                    M0_AW_next_state = M0_AW_IDLE;
+                end
+            end
+
+            M0_AW_REGISTER: begin
+                AW_grant[M0_AW_sender] = 0;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M0_AW_sender][y] = 0;
+                    ID_fifo_data_in[M0_AW_sender][y] = 0;
+                end
+
+                ID_fifo_write_en[M0_AW_sender][AW_id[M0_AW_sender]] = 1;
+                ID_fifo_data_in[M0_AW_sender][AW_id[M0_AW_sender]] = {AW_sel[M0_AW_sender]};
+
+                M0_AW_next_state = M0_AW_ALLOW;
+            end
+
+            M0_AW_ALLOW: begin
+                AW_grant[M0_AW_sender] = 1;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M0_AW_sender][y] = 0;
+                    ID_fifo_data_in[M0_AW_sender][y] = 0;
+                end
+
+                if (!AW_valid[M0_AW_sender]) begin
+                    M0_AW_next_state = M0_AW_IDLE;
+                end else begin
+                    M0_AW_next_state = M0_AW_ALLOW;
+                end
+            end
+        endcase
+    end
+
+    // write address channel arbiter 1
+    wire [$clog2(M)-1:0] M1_AW_sender = 1;
+    reg [2-1:0] M1_AW_curr_state, M1_AW_next_state;
+
+    localparam M1_AW_IDLE     = 0;
+    localparam M1_AW_REGISTER = 1;
+    localparam M1_AW_ALLOW    = 2;
+
+    always @(posedge clk or negedge clr) begin
+        if (!clr) begin
+            M1_AW_curr_state <= M1_AW_IDLE;
+        end else begin
+            M1_AW_curr_state <= M1_AW_next_state;
+        end
+    end
+
+    always @(*) begin
+        case (M1_AW_curr_state)
+            M1_AW_IDLE: begin
+                AW_grant[M1_AW_sender] = 0;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M1_AW_sender][y] = 0;
+                    ID_fifo_data_in[M1_AW_sender][y] = 0;
+                end
+
+                if (AW_valid[M1_AW_sender] && !ID_fifo_full[M1_AW_sender][AW_id[M1_AW_sender]] &&
+                    !((M0_AW_next_state == M0_AW_REGISTER && AW_sel[M0_AW_sender] == AW_sel[M1_AW_sender]) ||
+                    (M0_AW_curr_state == M0_AW_REGISTER && AW_sel[M0_AW_sender] == AW_sel[M1_AW_sender]) ||
+                    (M0_AW_curr_state == M0_AW_ALLOW && AW_sel[M0_AW_sender] == AW_sel[M1_AW_sender]))) begin
+                    M1_AW_next_state = M1_AW_REGISTER;
+                end else begin
+                    M1_AW_next_state = M1_AW_IDLE;
+                end
+            end
+
+            M1_AW_REGISTER: begin
+                AW_grant[M1_AW_sender] = 0;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M1_AW_sender][y] = 0;
+                    ID_fifo_data_in[M1_AW_sender][y] = 0;
+                end
+
+                ID_fifo_write_en[M1_AW_sender][AW_id[M1_AW_sender]] = 1;
+                ID_fifo_data_in[M1_AW_sender][AW_id[M1_AW_sender]] = {AW_sel[M1_AW_sender]};
+
+                M1_AW_next_state = M1_AW_ALLOW;
+            end
+
+            M1_AW_ALLOW: begin
+                AW_grant[M1_AW_sender] = 1;
+
+                for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
+                    ID_fifo_write_en[M1_AW_sender][y] = 0;
+                    ID_fifo_data_in[M1_AW_sender][y] = 0;
+                end
+
+                if (!AW_valid[M1_AW_sender]) begin
+                    M1_AW_next_state = M1_AW_IDLE;
+                end else begin
+                    M1_AW_next_state = M1_AW_ALLOW;
+                end
+            end
+        endcase
+    end
+
+    // write data/response channel arbiter slave 0
+    wire [$clog2(M)-1:0] M0_W_sender = 0;
+    reg [$clog2(S)-1:0] M0_W_receiver;
+    reg [2-1:0] M0_W_curr_state, M0_W_next_state;
+
+    localparam M0_W_IDLE       = 0;
+    localparam M0_W_UNREGISTER = 1;
+    localparam M0_W_ALLOW    = 2;
+
+    always @(posedge clk or negedge clr) begin
+        if (!clr) begin
+            M0_W_curr_state <= M0_W_IDLE;
+            M0_W_receiver <= 0;
+        end else begin
+            M0_W_curr_state <= M0_W_next_state;
+
+            case (M0_W_curr_state)
+                M0_W_UNREGISTER: begin
+                    M0_W_receiver <= ID_fifo_head[M0_W_sender][W_id[M0_W_sender]];
                 end
             endcase
         end
     end
 
     always @(*) begin
-        case (AW_curr_state)
-            AW_IDLE: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
-                end
+        case (M0_W_curr_state)
+            M0_W_IDLE: begin
+                W_grant[M0_W_sender] = 0;
+                W_sel[M0_W_sender] = 0;
 
-                for (x = 0; x < M; x = x + 1) begin
-                    for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
-                        ID_fifo_write_en[x][y] = 0;
-                        ID_fifo_data_in[x][y] = 0;
-                    end
-                end
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
-                if (AW_valid[AW_sender] && !ID_fifo_full[AW_sender][AW_id[AW_sender]]) begin
-                    AW_next_state = AW_REGISTER;
+                if (B_ready[M0_W_sender] &&
+                    !ID_fifo_empty[M0_W_sender][W_id[M0_W_sender]]) begin
+                    M0_W_next_state = M0_W_UNREGISTER;
                 end else begin
-                    AW_next_state = AW_IDLE;
+                    M0_W_next_state = M0_W_IDLE;
                 end
             end
 
-            AW_REGISTER: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
-                end
+            M0_W_UNREGISTER: begin
+                W_grant[M0_W_sender] = 0;
+                W_sel[M0_W_sender] = 0;
 
-                for (x = 0; x < M; x = x + 1) begin
-                    for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
-                        ID_fifo_write_en[x][y] = 0;
-                        ID_fifo_data_in[x][y] = 0;
-                    end
-                end
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
-                ID_fifo_write_en[AW_sender][AW_id[AW_sender]] = 1;
-                ID_fifo_data_in[AW_sender][AW_id[AW_sender]] = {AW_sel[AW_sender]};
+                // ID_fifo_read_en[M0_W_sender][W_id[M0_W_sender]] = 1;
 
-                AW_next_state = AW_ALLOW;
+                M0_W_next_state = M0_W_ALLOW;
             end
 
-            AW_ALLOW: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    AW_grant[x] = 0;
-                end
+            M0_W_ALLOW: begin
+                W_grant[M0_W_sender] = 1;
+                
 
-                AW_grant[AW_sender] = 1;
+                W_sel[M0_W_sender] = M0_W_receiver;
+                
 
-                for (x = 0; x < M; x = x + 1) begin
-                    for (y = 0; y < NUM_OUTSTANDING_TRANS; y = y + 1) begin
-                        ID_fifo_write_en[x][y] = 0;
-                        ID_fifo_data_in[x][y] = 0;
-                    end
-                end
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
-                if (!AW_valid[AW_sender]) begin
-                    AW_next_state = AW_IDLE;
+                if (B_valid[M0_W_sender]) begin
+                    M0_W_next_state = M0_W_IDLE;
                 end else begin
-                    AW_next_state = AW_ALLOW;
+                    M0_W_next_state = M0_W_ALLOW;
                 end
             end
         endcase
     end
 
-    // write data/response channel arbiter
-    reg [$clog2(M)-1:0] W_sender;
-    reg [$clog2(S)-1:0] W_receiver;
-    reg [2-1:0] W_curr_state, W_next_state;
+    // write data/response channel arbiter slave 1
+    wire [$clog2(M)-1:0] M1_W_sender = 1;
+    reg [$clog2(S)-1:0] M1_W_receiver;
+    reg [2-1:0] M1_W_curr_state, M1_W_next_state;
 
-    localparam W_IDLE       = 0;
-    localparam W_UNREGISTER = 1;
-    localparam W_ALLOW    = 2;
+    localparam M1_W_IDLE       = 0;
+    localparam M1_W_UNREGISTER = 1;
+    localparam M1_W_ALLOW    = 2;
 
     always @(posedge clk or negedge clr) begin
         if (!clr) begin
-            W_curr_state <= W_IDLE;
-            W_sender <= 0;
-            W_receiver <= 0;
+            M1_W_curr_state <= M1_W_IDLE;
+            M1_W_receiver <= 0;
         end else begin
-            W_curr_state <= W_next_state;
+            M1_W_curr_state <= M1_W_next_state;
 
-            case (W_curr_state)
-                W_IDLE: begin
-                    if (W_next_state == W_IDLE) begin
-                        W_sender <= (W_sender + 1) % M;
-                    end
-                end
-
-                W_UNREGISTER: begin
-                    W_receiver <= ID_fifo_head[W_sender][W_id[W_sender]];
-                end
-
-                W_ALLOW: begin
-                    if (W_next_state == W_IDLE) begin
-                        W_sender <= (W_sender + 1) % M;
-                    end
+            case (M1_W_curr_state)
+                M1_W_UNREGISTER: begin
+                    M1_W_receiver <= ID_fifo_head[M1_W_sender][W_id[M1_W_sender]];
                 end
             endcase
         end
     end
 
     always @(*) begin
-        case (W_curr_state)
-            W_IDLE: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    W_grant[x] = 0;
-                    W_sel[x] = 0;
-                end
+        case (M1_W_curr_state)
+            M1_W_IDLE: begin
+                W_grant[M1_W_sender] = 0;
+                W_sel[M1_W_sender] = 0;
 
-                for (x = 0; x < S; x = x + 1) begin
-                    B_grant[x] = 0;
-                    B_sel[x] = 0;
-                end
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
-
-                for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
-                    for (y = 0; y < M; y = y + 1) begin
-                        ID_fifo_read_en[x][y] = 0;
-                    end
-                end
-
-                if (B_ready[W_sender] &&
-                    !ID_fifo_empty[W_sender][W_id[W_sender]] /* &&
-                    ID_fifo_head[W_sender][W_id[W_sender]] == W_sender */) begin
-                    W_next_state = W_UNREGISTER;
+                if (B_ready[M1_W_sender] &&
+                    !ID_fifo_empty[M1_W_sender][W_id[M1_W_sender]]) begin
+                    M1_W_next_state = M1_W_UNREGISTER;
                 end else begin
-                    W_next_state = W_IDLE;
+                    M1_W_next_state = M1_W_IDLE;
                 end
             end
 
-            W_UNREGISTER: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    W_grant[x] = 0;
-                    W_sel[x] = 0;
-                end
+            M1_W_UNREGISTER: begin
+                W_grant[M1_W_sender] = 0;
+                W_sel[M1_W_sender] = 0;
 
-                for (x = 0; x < S; x = x + 1) begin
-                    B_grant[x] = 0;
-                    B_sel[x] = 0;
-                end
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
+                // ID_fifo_read_en[M1_W_sender][W_id[M1_W_sender]] = 1;
 
-                for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
-                    for (y = 0; y < M; y = y + 1) begin
-                        ID_fifo_read_en[x][y] = 0;
-                    end
-                end
-
-                ID_fifo_read_en[W_sender][W_id[W_sender]] = 1;
-
-                W_next_state = W_ALLOW;
+                M1_W_next_state = M1_W_ALLOW;
             end
 
-            W_ALLOW: begin
-                for (x = 0; x < M; x = x + 1) begin
-                    W_grant[x] = 0;
-                    W_sel[x] = 0;
-                end
+            M1_W_ALLOW: begin
+                W_grant[M1_W_sender] = 1;
+                
 
-                for (x = 0; x < S; x = x + 1) begin
-                    B_grant[x] = 0;
-                    B_sel[x] = 0;
-                end
+                W_sel[M1_W_sender] = M1_W_receiver;
+                
 
-                W_grant[W_sender] = 1;
-                B_grant[W_receiver] = 1;
+                // for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+                //     for (y = 0; y < M; y = y + 1) begin
+                //         ID_fifo_read_en[x][y] = 0;
+                //     end
+                // end
 
-                W_sel[W_sender] = W_receiver;
-                B_sel[W_receiver] = W_sender;
-
-                for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
-                    for (y = 0; y < M; y = y + 1) begin
-                        ID_fifo_read_en[x][y] = 0;
-                    end
-                end
-
-                if (B_valid[W_sender]) begin
-                    W_next_state = W_IDLE;
+                if (B_valid[M1_W_sender]) begin
+                    M1_W_next_state = M1_W_IDLE;
                 end else begin
-                    W_next_state = W_ALLOW;
+                    M1_W_next_state = M1_W_ALLOW;
                 end
             end
         endcase
+    end
+
+    // write data/response channel arbiter fifo read
+    always @(*) begin
+        for (x = 0; x < NUM_OUTSTANDING_TRANS; x = x + 1) begin
+            for (y = 0; y < M; y = y + 1) begin
+                ID_fifo_read_en[x][y] = 0;
+            end
+        end
+
+        if (M0_W_curr_state == M0_W_ALLOW) begin
+            ID_fifo_read_en[M0_W_sender][W_id[M0_W_sender]] = 1;
+        end
+
+        if (M1_W_curr_state == M1_W_ALLOW) begin
+            ID_fifo_read_en[M1_W_sender][W_id[M1_W_sender]] = 1;
+        end
+    end
+
+    // write data/response channel arbiter B grant/sel
+    always @(*) begin
+        for (x = 0; x < S; x = x + 1) begin
+            B_grant[x] = 0;
+            B_sel[x] = 0;
+        end
+
+        if (M0_W_curr_state == M0_W_UNREGISTER) begin
+            B_grant[M0_W_receiver] = 1;
+            B_sel[M0_W_receiver] = M0_W_sender;
+        end
+
+        if (M1_W_curr_state == M1_W_UNREGISTER) begin
+            B_grant[M1_W_receiver] = 1;
+            B_sel[M1_W_receiver] = M1_W_sender;
+        end        
     end
 
 endmodule
