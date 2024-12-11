@@ -3,7 +3,7 @@ module interconnect #(
     parameter S = 2,
     parameter NUM_OUTSTANDING_TRANS = 2,
     parameter BUS_WIDTH = 32,
-    parameter ID_WIDTH = 4,
+    parameter ID_WIDTH = 1,
     parameter ADDR_WIDTH = 32
 )(
     input clk,

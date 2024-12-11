@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 
 module fifo_interconnect #(
-    parameter DATA_WIDTH = 32,
-    parameter DEPTH = 2
+    parameter DATA_WIDTH = 1,
+    parameter DEPTH = 1
 )(
     input clk,
     input clr,                              // clear FIFO (active low)

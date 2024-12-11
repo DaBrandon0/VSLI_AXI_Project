@@ -7,7 +7,7 @@ module WriteMaster
     input ACLK,
     input ARESETn,
     //Write response channel signals master side
-    input [3:0] BID,
+    input BID,
     input [1:0] BRESP,
     input BVALID,
     output reg BREADY,
@@ -26,7 +26,7 @@ module WriteMaster
     input [2:0] WPROT,
     output reg [1:0] response,
     //Write address channel signals master side
-    output reg [3:0] AWID,
+    output reg AWID,
     output reg [31:0] AWADDR,
     output reg [3:0] AWLEN,
     output reg [2:0] AWSIZE,
@@ -37,7 +37,7 @@ module WriteMaster
     output reg AWVALID,
     input AWREADY,
     //Write data channel signals master side
-    output reg [3:0] WID,
+    output reg WID,
     output reg [buswidth-1:0] WDATA,
     output [3:0] WSTRB,
     output reg WLAST,
@@ -68,19 +68,8 @@ module WriteMaster
         begin
             fifosize <= 0;
             fifoWAsize <= 0;
-            AWID <= 0;
-            AWADDR <= 0;
-            AWLEN <= 0;
-            AWSIZE <= 0;
-            AWBURST <= 0;
-            AWLOCK <= 0;
-            AWCACHE <= 0;
-            AWPROT <= 0;
             once2 <= 0;
             once3 <= 0;
-            sent <= 0;
-            sent2 <= 0;
-            
             for (i = 0; i < 64; i = i + 1)
             begin
                 fifodata[i] <= 32'd0;
@@ -112,17 +101,17 @@ module WriteMaster
             begin
                 if(!once3)
                 begin
-                fifoWAsize = fifoWAsize - AWLEN;
+                fifoWAsize <= fifoWAsize - AWLEN;
                     for (j = 0; j < AWLEN; j = j + 1)
                 begin
                 for (i = 0; i < 64; i = i + 1)
                 begin
-                    fifoawid[i] = fifoawid[i+1];
-                    fifowid[i] = fifowid[i+1];
-                    fifowaddr[i] = fifowaddr[i+1];
-                    fifolen[i] = fifolen[i+1];
-                    fifowsize[i] = fifowsize[i+1];
-                    fifoburst[i] = fifoburst[i+1];
+                    fifoawid[i] <= fifoawid[i+1];
+                    fifowid[i] <= fifowid[i+1];
+                    fifowaddr[i] <= fifowaddr[i+1];
+                    fifolen[i] <= fifolen[i+1];
+                    fifowsize[i] <= fifowsize[i+1];
+                    fifoburst[i] <= fifoburst[i+1];
                 end
                 end
                 end
@@ -184,12 +173,21 @@ module WriteMaster
         AWBURST = fifoburst[0];
         if(!ARESETn)
         begin
-            state = 0;
             AWVALID = 0;
             WVALID = 0;
             WLAST = 0;
             BREADY = 0;
             response = 2'bZZ;
+            AWID = 0;
+            AWADDR = 0;
+            AWLEN = 0;
+            AWSIZE = 0;
+            AWBURST = 0;
+            AWLOCK = 0;
+            AWCACHE = 0;
+            AWPROT = 0;
+            sent = 0;
+            sent2 = 0;
         end
         else
         begin

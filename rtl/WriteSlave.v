@@ -12,12 +12,12 @@ module WriteSlave
         input writefinish,
         output writeavail,
         //Write response channel signals master side
-        output reg [3:0] BID,
+        output reg [1:0] BID,
         output reg [1:0] BRESP,
         output reg BVALID,
         input BREADY,
         //Write address channel signals slave side
-        input [3:0] AWID,
+        input [1:0] AWID,
         input [31:0] AWADDR,
         input [3:0] AWLEN,
         input [2:0] AWSIZE,
@@ -28,7 +28,7 @@ module WriteSlave
         input AWVALID,
         output reg AWREADY,
         //Write data channel signals slave side
-        input [3:0] WID,
+        input [1:0] WID,
         input [buswidth-1:0] WDATA,
         input [3:0] WSTRB,
         input WLAST,
@@ -111,7 +111,6 @@ module WriteSlave
         4'd3:
         begin
             BRESP = 2'b00; // default ok response 
-            
             if(BREADY)
             begin
                 BVALID = 1;

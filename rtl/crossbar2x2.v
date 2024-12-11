@@ -3,7 +3,7 @@
 
 module crossbar2x2 #(
     parameter BUS_WIDTH = 32,
-    parameter ID_WIDTH = 4,
+    parameter ID_WIDTH = 1,
     parameter ADDR_WIDTH = 32
 )(
     // write address channel signals

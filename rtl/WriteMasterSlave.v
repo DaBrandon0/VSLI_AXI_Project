@@ -20,7 +20,7 @@ module WriteMasterSlave(
     input finishwrite,
     //master connect wires
     output Master_out_BREADY,
-    output [3:0] Master_out_AWID,
+    output Master_out_AWID,
     output [31:0] Master_out_AWADDR,
     output [3:0] Master_out_AWLEN,
     output [2:0] Master_out_AWSIZE,
@@ -29,7 +29,7 @@ module WriteMasterSlave(
     output [3:0] Master_out_AWCACHE,
     output [2:0] Master_out_AWPROT,
     output Master_out_AWVALID,
-    output [3:0] Master_out_WID,
+    output Master_out_WID,
     output [1:0] Master_out_BRESP,
     output [32-1:0] Master_out_dataBus,
     output [3:0] Master_out_WSTRB,
@@ -38,10 +38,10 @@ module WriteMasterSlave(
     input Master_in_AWREADY,
     input Master_in_WREADY,
     input Master_in_BVALID,
-    input [3:0] Master_in_BID,
+    input Master_in_BID,
     //slave connect wires
     input Slave_in_BREADY,
-    input [3:0] Slave_in_AWID,
+    input [1:0] Slave_in_AWID,
     input [31:0] Slave_in_AWADDR,
     input [3:0] Slave_in_AWLEN,
     input [2:0] Slave_in_AWSIZE,
@@ -50,7 +50,7 @@ module WriteMasterSlave(
     input [3:0] Slave_in_AWCACHE,
     input [2:0] Slave_in_AWPROT,
     input Slave_in_AWVALID,
-    input [3:0] Slave_in_WID,
+    input [1:0] Slave_in_WID,
     input [1:0] Slave_out_BRESP,
     input [32-1:0] Slave_in_dataBus,
     input [3:0] Slave_in_WSTRB,
@@ -59,7 +59,7 @@ module WriteMasterSlave(
     output Slave_out_AWREADY,
     output Slave_out_WREADY,
     output Slave_out_BVALID,
-    output [3:0] Slave_out_BID
+    output [1:0] Slave_out_BID
 );
 
     WriteMaster masterwrite(.ACLK(ACLK), .ARESETn(ARESETn), .BID(Master_in_BID), .BRESP(Master_out_BRESP), .BVALID(Master_in_BVALID), .BREADY(Master_out_BREADY), .Datain(datawrite), .AWWID(AWID), .WWID(WID), .memoryWrite(memoryWrite), .devclock(devclock), .WADDR(addresswrite), .WLEN(WLEN), .WSIZE(WSIZE), .WBURST(WBURST), .WLOCK(WLOCK),
