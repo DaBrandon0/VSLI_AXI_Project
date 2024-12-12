@@ -1,0 +1,72 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 13:22:06 2024
+****************************************
+ 
+ # A fanout number of 1000 was used for high fanout net computations.
+ 
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+ 
+  Startpoint: WriteMasterSlave_inst0/masterwrite/state_reg[1]
+              (rising edge-triggered flip-flop clocked by clock)
+  Endpoint: WriteMasterSlave_inst0/masterwrite/fifodata_reg[47][9]
+            (rising edge-triggered flip-flop clocked by clock)
+  Path Group: clock
+  Path Type: max
+ 
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clock (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  WriteMasterSlave_inst0/masterwrite/state_reg[1]/CLK (DFFPOSX1)
+                                                          0.00 #     0.00 r
+  WriteMasterSlave_inst0/masterwrite/state_reg[1]/Q (DFFPOSX1)
+                                                          0.11       0.11 f
+  WriteMasterSlave_inst0/masterwrite/U33305/Y (INVX1)     0.05       0.16 r
+  WriteMasterSlave_inst0/masterwrite/U30145/Y (NAND3X1)
+                                                          0.02       0.17 f
+  WriteMasterSlave_inst0/masterwrite/U8766/Y (BUFX2)      0.04       0.21 f
+  WriteMasterSlave_inst0/masterwrite/U30469/Y (INVX1)     0.43       0.64 r
+  WriteMasterSlave_inst0/masterwrite/U25868/Y (AND2X1)
+                                                          0.00       0.64 r
+  WriteMasterSlave_inst0/masterwrite/U30466/Y (AND2X1)
+                                                          0.40       1.04 r
+  WriteMasterSlave_inst0/masterwrite/U2512/Y (AND2X1)     0.40       1.44 r
+  WriteMasterSlave_inst0/masterwrite/U2513/Y (INVX1)      0.18       1.61 f
+  WriteMasterSlave_inst0/masterwrite/U30211/Y (INVX1)     0.21       1.82 r
+  WriteMasterSlave_inst0/masterwrite/U21913/Y (AND2X1)
+                                                          0.45       2.27 r
+  WriteMasterSlave_inst0/masterwrite/U30209/Y (BUFX2)     0.75       3.02 r
+  WriteMasterSlave_inst0/masterwrite/U30101/Y (BUFX2)     0.79       3.81 r
+  WriteMasterSlave_inst0/masterwrite/U30065/Y (BUFX2)     0.79       4.59 r
+  WriteMasterSlave_inst0/masterwrite/U29604/Y (BUFX2)     0.79       5.39 r
+  WriteMasterSlave_inst0/masterwrite/U27013/Y (AOI22X1)
+                                                          0.18       5.56 f
+  WriteMasterSlave_inst0/masterwrite/U27012/Y (NAND3X1)
+                                                          0.11       5.68 r
+  WriteMasterSlave_inst0/masterwrite/fifodata_reg[47][9]/D (DFFPOSX1)
+                                                          0.00       5.68 r
+  data arrival time                                                  5.68
+ 
+  clock clock (rise edge)                              2000.00    2000.00
+  clock network delay (ideal)                             0.00    2000.00
+  WriteMasterSlave_inst0/masterwrite/fifodata_reg[47][9]/CLK (DFFPOSX1)
+                                                          0.00    2000.00 r
+  library setup time                                      1.15    2001.15
+  data required time                                              2001.15
+  --------------------------------------------------------------------------
+  data required time                                              2001.15
+  data arrival time                                                 -5.68
+  --------------------------------------------------------------------------
+  slack (MET)                                                     1995.48
+ 
+ 
+
+***** End Of Report *****

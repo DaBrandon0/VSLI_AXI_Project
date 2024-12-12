@@ -1,0 +1,54 @@
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 14:28:09 2024
+****************************************
+
+
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+
+
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+
+
+Global Operating Voltage = 1.1  
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000pf
+    Time Units = 1ns
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1nW
+
+
+Attributes
+----------
+i - Including register clock pin internal power
+
+
+  Cell Internal Power  =  33.4714 mW   (95%)
+  Net Switching Power  =   1.7771 mW    (5%)
+                         ---------
+Total Dynamic Power    =  35.2485 mW  (100%)
+
+Cell Leakage Power     =   1.3908 mW
+
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network     31.0146            0.0000            0.0000            0.0000  (   0.00%)  i
+register       9.2695e-02        1.0599e-02        6.0771e+05           31.7256  (  86.59%)
+sequential         0.7015        1.5241e-02        2.5287e+04            0.7421  (   2.03%)
+combinational      1.6636            1.7511        7.5780e+05            4.1727  (  11.39%)
+--------------------------------------------------------------------------------------------------
+Total             33.4724 mW         1.7770 mW     1.3908e+06 nW        36.6404 mW
+1

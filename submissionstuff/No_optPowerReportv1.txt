@@ -1,0 +1,54 @@
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 12:09:06 2024
+****************************************
+
+
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+
+
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+
+
+Global Operating Voltage = 1.1  
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000pf
+    Time Units = 1ns
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1nW
+
+
+Attributes
+----------
+i - Including register clock pin internal power
+
+
+  Cell Internal Power  =  19.8953 mW   (63%)
+  Net Switching Power  =  11.9047 mW   (37%)
+                         ---------
+Total Dynamic Power    =  31.8001 mW  (100%)
+
+Cell Leakage Power     =   1.2165 mW
+
+Information: report_power power group summary does not include estimated clock tree power. (PWR-789)
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network      0.0000            0.0000            0.0000            0.0000  (   0.00%)  i
+register           0.0000            0.0000            0.0000            0.0000  (   0.00%)
+sequential        14.7727        1.1652e-02        6.3300e+05           15.4174  (  46.70%)
+combinational      5.1215           11.8937        5.8354e+05           17.5983  (  53.30%)
+--------------------------------------------------------------------------------------------------
+Total             19.8942 mW        11.9053 mW     1.2165e+06 nW        33.0157 mW

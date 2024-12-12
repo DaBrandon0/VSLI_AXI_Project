@@ -1,0 +1,38 @@
+******** Start: VERIFY CONNECTIVITY ********
+Start Time: Wed Dec 11 15:50:28 2024
+
+Design Name: top
+Database Units: 2000
+Design Boundary: (0.0000, 0.0000) (1445.7100, 1422.1500)
+Error Limit = 1000; Warning Limit = 50
+Check all nets
+**** 15:50:29 **** Processed 5000 nets.
+**** 15:50:29 **** Processed 10000 nets.
+**** 15:50:29 **** Processed 15000 nets.
+**** 15:50:29 **** Processed 20000 nets.
+**** 15:50:30 **** Processed 25000 nets.
+**** 15:50:30 **** Processed 30000 nets.
+**** 15:50:30 **** Processed 35000 nets.
+**** 15:50:30 **** Processed 40000 nets.
+**** 15:50:30 **** Processed 45000 nets.
+**** 15:50:31 **** Processed 50000 nets.
+**** 15:50:31 **** Processed 55000 nets.
+**** 15:50:31 **** Processed 60000 nets.
+**** 15:50:32 **** Processed 65000 nets.
+**** 15:50:32 **** Processed 70000 nets.
+**** 15:50:32 **** Processed 75000 nets.
+**** 15:50:33 **** Processed 80000 nets.
+**** 15:50:33 **** Processed 85000 nets.
+**** 15:50:33 **** Processed 90000 nets.
+**** 15:50:33 **** Processed 95000 nets.
+
+Begin Summary
+  Found no problems or warnings.
+End Summary
+
+End Time: Wed Dec 11 15:50:33 2024
+Time Elapsed: 0:00:05.0
+
+******** End: VERIFY CONNECTIVITY ********
+  Verification Complete : 0 Viols.  0 Wrngs.
+  (CPU Time: 0:00:05.2  MEM: -0.945M)

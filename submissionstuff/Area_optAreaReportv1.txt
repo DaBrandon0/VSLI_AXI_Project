@@ -1,0 +1,43 @@
+ 
+****************************************
+Report : area
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 12:38:38 2024
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'top' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst0/readslave/U611/C ReadMasterSlave_inst0/readslave/U611/Y ReadMasterSlave_inst0/readslave/seen_rready_reg/CLK ReadMasterSlave_inst0/readslave/seen_rready_reg/Q ReadMasterSlave_inst0/readslave/U613/B ReadMasterSlave_inst0/readslave/U613/Y ReadMasterSlave_inst0/readslave/U612/B ReadMasterSlave_inst0/readslave/U612/Y 
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst1/readslave/U613/C ReadMasterSlave_inst1/readslave/U613/Y ReadMasterSlave_inst1/readslave/seen_rready_reg/CLK ReadMasterSlave_inst1/readslave/seen_rready_reg/Q ReadMasterSlave_inst1/readslave/U615/B ReadMasterSlave_inst1/readslave/U615/Y ReadMasterSlave_inst1/readslave/U614/B ReadMasterSlave_inst1/readslave/U614/Y 
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+
+Number of ports:                         7296
+Number of nets:                         84677
+Number of cells:                        78152
+Number of combinational cells:          65469
+Number of sequential cells:             12425
+Number of macros/black boxes:               0
+Number of buf/inv:                      14623
+Number of references:                       5
+
+Combinational area:             173251.479171
+Buf/Inv area:                    21573.251287
+Noncombinational area:           94611.816814
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                267863.295985
+Total area:                 undefined

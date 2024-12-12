@@ -51,7 +51,7 @@ module WriteMasterSlave(
     input [2:0] Slave_in_AWPROT,
     input Slave_in_AWVALID,
     input [1:0] Slave_in_WID,
-    input [1:0] Slave_out_BRESP,
+    output [1:0] Slave_out_BRESP,
     input [32-1:0] Slave_in_dataBus,
     input [3:0] Slave_in_WSTRB,
     input Slave_in_WLAST,

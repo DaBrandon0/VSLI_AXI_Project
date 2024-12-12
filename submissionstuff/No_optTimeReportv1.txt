@@ -1,0 +1,109 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 13:05:28 2024
+****************************************
+ 
+ # A fanout number of 1000 was used for high fanout net computations.
+ 
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+ 
+  Startpoint: WriteMasterSlave_inst0/masterwrite/state_reg[1]
+              (rising edge-triggered flip-flop clocked by clock)
+  Endpoint: WriteMasterSlave_inst1/masterwrite/fifoawid_reg[3][0]
+            (rising edge-triggered flip-flop clocked by clock)
+  Path Group: clock
+  Path Type: max
+ 
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clock (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  WriteMasterSlave_inst0/masterwrite/state_reg[1]/CLK (DFFPOSX1)
+                                                          0.00 #     0.00 r
+  WriteMasterSlave_inst0/masterwrite/state_reg[1]/Q (DFFPOSX1)
+                                                          0.07       0.07 r
+  WriteMasterSlave_inst0/masterwrite/U34309/Y (INVX1)     0.04       0.12 f
+  WriteMasterSlave_inst0/masterwrite/U30079/Y (NAND3X1)
+                                                          0.04       0.16 r
+  WriteMasterSlave_inst0/masterwrite/U8631/Y (BUFX2)      0.04       0.20 r
+  WriteMasterSlave_inst0/masterwrite/U30078/Y (OAI21X1)
+                                                          0.02       0.22 f
+  WriteMasterSlave_inst0/masterwrite/BREADY (WriteMaster_0)
+                                                          0.00       0.22 f
+  WriteMasterSlave_inst0/Master_out_BREADY (WriteMasterSlave_0)
+                                                          0.00       0.22 f
+  interconnect_inst/M0_BREADY (interconnect)              0.00       0.22 f
+  interconnect_inst/crossbar2x2_inst/M0_BREADY (crossbar2x2)
+                                                          0.00       0.22 f
+  interconnect_inst/crossbar2x2_inst/U871/Y (AND2X1)      0.03       0.25 f
+  interconnect_inst/crossbar2x2_inst/U873/Y (INVX1)       0.00       0.25 r
+  interconnect_inst/crossbar2x2_inst/U952/Y (OAI21X1)     0.01       0.26 f
+  interconnect_inst/crossbar2x2_inst/S1_BREADY (crossbar2x2)
+                                                          0.00       0.26 f
+  interconnect_inst/S1_BREADY (interconnect)              0.00       0.26 f
+  WriteMasterSlave_inst1/Slave_in_BREADY (WriteMasterSlave_1)
+                                                          0.00       0.26 f
+  WriteMasterSlave_inst1/slavewrite/BREADY (WriteSlave_1)
+                                                          0.00       0.26 f
+  WriteMasterSlave_inst1/slavewrite/U130/Y (NAND3X1)      0.03       0.29 r
+  WriteMasterSlave_inst1/slavewrite/U9/Y (BUFX2)          0.04       0.33 r
+  WriteMasterSlave_inst1/slavewrite/U17/Y (INVX1)         0.02       0.36 f
+  WriteMasterSlave_inst1/slavewrite/BVALID (WriteSlave_1)
+                                                          0.00       0.36 f
+  WriteMasterSlave_inst1/Slave_out_BVALID (WriteMasterSlave_1)
+                                                          0.00       0.36 f
+  interconnect_inst/S1_BVALID (interconnect)              0.00       0.36 f
+  interconnect_inst/crossbar2x2_inst/S1_BVALID (crossbar2x2)
+                                                          0.00       0.36 f
+  interconnect_inst/crossbar2x2_inst/U1107/Y (INVX1)      0.01       0.37 r
+  interconnect_inst/crossbar2x2_inst/U618/Y (AND2X1)      0.04       0.41 r
+  interconnect_inst/crossbar2x2_inst/U620/Y (INVX1)       0.02       0.43 f
+  interconnect_inst/crossbar2x2_inst/U580/Y (OAI21X1)     0.03       0.46 r
+  interconnect_inst/crossbar2x2_inst/M1_BVALID_tri/Y (TBUFX2)
+                                                          0.03       0.48 f
+  interconnect_inst/crossbar2x2_inst/M1_BVALID (crossbar2x2)
+                                                          0.00       0.48 f
+  interconnect_inst/M1_BVALID (interconnect)              0.00       0.48 f
+  WriteMasterSlave_inst1/Master_in_BVALID (WriteMasterSlave_1)
+                                                          0.00       0.48 f
+  WriteMasterSlave_inst1/masterwrite/BVALID (WriteMaster_1)
+                                                          0.00       0.48 f
+  WriteMasterSlave_inst1/masterwrite/U31667/Y (INVX1)     0.02       0.51 r
+  WriteMasterSlave_inst1/masterwrite/U30077/Y (NOR3X1)
+                                                          0.05       0.55 f
+  WriteMasterSlave_inst1/masterwrite/U26547/Y (AND2X1)
+                                                          0.08       0.64 f
+  WriteMasterSlave_inst1/masterwrite/U36/Y (AND2X1)       0.04       0.68 f
+  WriteMasterSlave_inst1/masterwrite/U18400/Y (INVX1)     0.77       1.45 r
+  WriteMasterSlave_inst1/masterwrite/U29803/Y (BUFX2)     0.81       2.26 r
+  WriteMasterSlave_inst1/masterwrite/U29401/Y (BUFX2)     0.79       3.05 r
+  WriteMasterSlave_inst1/masterwrite/U28458/Y (BUFX2)     0.79       3.84 r
+  WriteMasterSlave_inst1/masterwrite/U28287/Y (BUFX2)     0.79       4.63 r
+  WriteMasterSlave_inst1/masterwrite/U15307/Y (OAI21X1)
+                                                          0.17       4.80 f
+  WriteMasterSlave_inst1/masterwrite/fifoawid_reg[3][0]/D (DFFPOSX1)
+                                                          0.00       4.80 f
+  data arrival time                                                  4.80
+ 
+  clock clock (rise edge)                                 5.00       5.00
+  clock network delay (ideal)                             0.00       5.00
+  WriteMasterSlave_inst1/masterwrite/fifoawid_reg[3][0]/CLK (DFFPOSX1)
+                                                          0.00       5.00 r
+  library setup time                                     -0.10       4.90
+  data required time                                                 4.90
+  --------------------------------------------------------------------------
+  data required time                                                 4.90
+  data arrival time                                                 -4.80
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.10
+ 
+ 
+
+***** End Of Report *****
