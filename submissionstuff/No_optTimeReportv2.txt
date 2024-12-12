@@ -1,0 +1,72 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 18:16:51 2024
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+
+  Startpoint: WriteMasterSlave_inst0/masterwrite/transcount_reg[3]
+              (rising edge-triggered flip-flop clocked by clock)
+  Endpoint: WriteMasterSlave_inst0/masterwrite/fifodata_reg[51][5]
+            (rising edge-triggered flip-flop clocked by clock)
+  Path Group: clock
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clock (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  WriteMasterSlave_inst0/masterwrite/transcount_reg[3]/CLK (DFFPOSX1)
+                                                          0.00 #     0.00 r
+  WriteMasterSlave_inst0/masterwrite/transcount_reg[3]/Q (DFFPOSX1)
+                                                          0.17       0.17 f
+  WriteMasterSlave_inst0/masterwrite/U35882/Y (INVX1)     0.27       0.44 r
+  WriteMasterSlave_inst0/masterwrite/U30126/Y (XNOR2X1)
+                                                          0.08       0.52 r
+  WriteMasterSlave_inst0/masterwrite/U20121/Y (OR2X1)     0.04       0.56 r
+  WriteMasterSlave_inst0/masterwrite/U20128/Y (INVX1)     0.02       0.58 f
+  WriteMasterSlave_inst0/masterwrite/U30123/Y (NAND3X1)
+                                                          0.03       0.60 r
+  WriteMasterSlave_inst0/masterwrite/U20120/Y (BUFX2)     0.04       0.64 r
+  WriteMasterSlave_inst0/masterwrite/U31582/Y (INVX1)     0.02       0.66 f
+  WriteMasterSlave_inst0/masterwrite/U23999/Y (AND2X1)
+                                                          0.06       0.72 f
+  WriteMasterSlave_inst0/masterwrite/U20606/Y (AND2X1)
+                                                          0.30       1.02 f
+  WriteMasterSlave_inst0/masterwrite/U20613/Y (INVX1)     0.15       1.17 r
+  WriteMasterSlave_inst0/masterwrite/U30837/Y (INVX1)     0.41       1.57 f
+  WriteMasterSlave_inst0/masterwrite/U30874/Y (AND2X1)
+                                                          0.31       1.89 f
+  WriteMasterSlave_inst0/masterwrite/U30655/Y (INVX1)     0.66       2.54 r
+  WriteMasterSlave_inst0/masterwrite/U30431/Y (INVX1)     0.36       2.90 f
+  WriteMasterSlave_inst0/masterwrite/U28176/Y (AOI22X1)
+                                                          0.16       3.06 r
+  WriteMasterSlave_inst0/masterwrite/U28172/Y (NAND3X1)
+                                                          0.05       3.11 f
+  WriteMasterSlave_inst0/masterwrite/U1900/Y (OR2X2)      0.05       3.15 f
+  WriteMasterSlave_inst0/masterwrite/fifodata_reg[51][5]/D (DFFPOSX1)
+                                                          0.00       3.15 f
+  data arrival time                                                  3.15
+
+  clock clock (rise edge)                              2000.00    2000.00
+  clock network delay (ideal)                             0.00    2000.00
+  WriteMasterSlave_inst0/masterwrite/fifodata_reg[51][5]/CLK (DFFPOSX1)
+                                                          0.00    2000.00 r
+  library setup time                                     -0.06    1999.94
+  data required time                                              1999.94
+  --------------------------------------------------------------------------
+  data required time                                              1999.94
+  data arrival time                                                 -3.15
+  --------------------------------------------------------------------------
+  slack (MET)                                                     1996.79
+
+

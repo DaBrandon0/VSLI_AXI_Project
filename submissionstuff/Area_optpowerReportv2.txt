@@ -1,0 +1,54 @@
+****************************************
+Report : power
+        -analysis_effort low
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 18:17:46 2024
+****************************************
+ 
+ 
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+ 
+ 
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+
+ 
+Global Operating Voltage = 1.1  
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000pf
+    Time Units = 1ns
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1nW
+ 
+ 
+Attributes
+----------
+i - Including register clock pin internal power
+
+ 
+  Cell Internal Power  =  83.7115 uW   (95%)
+  Net Switching Power  =   4.5441 uW    (5%)
+                         ---------
+Total Dynamic Power    =  88.2555 uW  (100%)
+ 
+Cell Leakage Power     =   1.3780 mW
+ 
+ 
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network  7.7540e-02            0.0000            0.0000            0.0000  (   0.00%)  i
+register       2.2869e-04        2.9627e-05        6.0771e+05            0.6855  (  46.75%)
+sequential     1.8066e-03        3.5130e-05        2.5287e+04        2.7129e-02  (   1.85%)
+combinational  4.1415e-03        4.4790e-03        7.4498e+05            0.7536  (  51.40%)
+--------------------------------------------------------------------------------------------------
+Total          8.3717e-02 mW     4.5438e-03 mW     1.3780e+06 nW         1.4662 mW
+
+***** End Of Report *****

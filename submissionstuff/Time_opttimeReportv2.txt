@@ -1,0 +1,78 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 18:00:10 2024
+****************************************
+ 
+ # A fanout number of 1000 was used for high fanout net computations.
+ 
+Operating Conditions: typical   Library: gscl45nm
+Wire Load Model Mode: top
+ 
+  Startpoint: WriteMasterSlave_inst1/masterwrite/transcount_reg[3]
+              (rising edge-triggered flip-flop clocked by clock)
+  Endpoint: WriteMasterSlave_inst1/masterwrite/fifodata_reg[1][29]
+            (rising edge-triggered flip-flop clocked by clock)
+  Path Group: clock
+  Path Type: max
+ 
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clock (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  WriteMasterSlave_inst1/masterwrite/transcount_reg[3]/CLK (DFFPOSX1)
+                                                          0.00 #     0.00 r
+  WriteMasterSlave_inst1/masterwrite/transcount_reg[3]/Q (DFFPOSX1)
+                                                          0.17       0.17 f
+  WriteMasterSlave_inst1/masterwrite/U37697/Y (INVX1)     0.27       0.44 r
+  WriteMasterSlave_inst1/masterwrite/U30170/Y (XNOR2X1)
+                                                          0.08       0.52 r
+  WriteMasterSlave_inst1/masterwrite/U15198/Y (OR2X1)     0.04       0.56 r
+  WriteMasterSlave_inst1/masterwrite/U15205/Y (INVX1)     0.02       0.58 f
+  WriteMasterSlave_inst1/masterwrite/U30167/Y (NAND3X1)
+                                                          0.03       0.60 r
+  WriteMasterSlave_inst1/masterwrite/U15191/Y (BUFX2)     0.04       0.64 r
+  WriteMasterSlave_inst1/masterwrite/U31300/Y (INVX1)     0.02       0.66 f
+  WriteMasterSlave_inst1/masterwrite/U18645/Y (AND2X1)
+                                                          0.05       0.72 f
+  WriteMasterSlave_inst1/masterwrite/U22976/Y (AND2X1)
+                                                          0.30       1.02 f
+  WriteMasterSlave_inst1/masterwrite/U22983/Y (INVX1)     0.18       1.20 r
+  WriteMasterSlave_inst1/masterwrite/U30612/Y (INVX1)     0.48       1.68 f
+  WriteMasterSlave_inst1/masterwrite/U31111/Y (AND2X1)
+                                                          0.10       1.79 f
+  WriteMasterSlave_inst1/masterwrite/U31014/Y (INVX1)     0.34       2.13 r
+  WriteMasterSlave_inst1/masterwrite/U30923/Y (INVX1)     0.14       2.27 f
+  WriteMasterSlave_inst1/masterwrite/U30677/Y (INVX1)     0.19       2.46 r
+  WriteMasterSlave_inst1/masterwrite/U30438/Y (INVX1)     0.09       2.55 f
+  WriteMasterSlave_inst1/masterwrite/U23892/Y (INVX1)     0.40       2.95 r
+  WriteMasterSlave_inst1/masterwrite/U23932/Y (OAI21X1)
+                                                          0.13       3.08 f
+  WriteMasterSlave_inst1/masterwrite/U23931/Y (AOI21X1)
+                                                          0.05       3.13 r
+  WriteMasterSlave_inst1/masterwrite/U23930/Y (NAND3X1)
+                                                          0.01       3.15 f
+  WriteMasterSlave_inst1/masterwrite/fifodata_reg[1][29]/D (DFFPOSX1)
+                                                          0.00       3.15 f
+  data arrival time                                                  3.15
+ 
+  clock clock (rise edge)                                 5.00       5.00
+  clock network delay (ideal)                             0.00       5.00
+  WriteMasterSlave_inst1/masterwrite/fifodata_reg[1][29]/CLK (DFFPOSX1)
+                                                          0.00       5.00 r
+  library setup time                                     -0.06       4.94
+  data required time                                                 4.94
+  --------------------------------------------------------------------------
+  data required time                                                 4.94
+  data arrival time                                                 -3.15
+  --------------------------------------------------------------------------
+  slack (MET)                                                        1.80
+ 
+ 
+
+***** End Of Report *****

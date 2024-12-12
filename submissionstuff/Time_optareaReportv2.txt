@@ -1,0 +1,44 @@
+****************************************
+Report : area
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 17:59:23 2024
+****************************************
+ 
+Information: Updating design information... (UID-85)
+Warning: Design 'top' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst0/readslave/U520/C ReadMasterSlave_inst0/readslave/U520/Y ReadMasterSlave_inst0/readslave/U72/A ReadMasterSlave_inst0/readslave/U72/Y ReadMasterSlave_inst0/readslave/seen_rready_reg/CLK ReadMasterSlave_inst0/readslave/seen_rready_reg/Q ReadMasterSlave_inst0/readslave/U521/B ReadMasterSlave_inst0/readslave/U521/Y ReadMasterSlave_inst0/readslave/U579/B ReadMasterSlave_inst0/readslave/U579/Y 
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst1/readslave/U520/C ReadMasterSlave_inst1/readslave/U520/Y ReadMasterSlave_inst1/readslave/U67/A ReadMasterSlave_inst1/readslave/U67/Y ReadMasterSlave_inst1/readslave/seen_rready_reg/CLK ReadMasterSlave_inst1/readslave/seen_rready_reg/Q ReadMasterSlave_inst1/readslave/U521/B ReadMasterSlave_inst1/readslave/U521/Y ReadMasterSlave_inst1/readslave/U576/B ReadMasterSlave_inst1/readslave/U576/Y 
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+ 
+Number of ports:                         7296
+Number of nets:                        106140
+Number of cells:                        99595
+Number of combinational cells:          86961
+Number of sequential cells:             12425
+Number of macros/black boxes:               0
+Number of buf/inv:                      33395
+Number of references:                       5
+ 
+Combinational area:             214843.189739
+Buf/Inv area:                    59436.374152
+Noncombinational area:           94627.773015
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+ 
+Total cell area:                309470.962754
+Total area:                 undefined
+
+***** End Of Report *****

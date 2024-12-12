@@ -1,0 +1,42 @@
+****************************************
+Report : area
+Design : top
+Version: T-2022.03-SP2
+Date   : Wed Dec 11 17:38:59 2024
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'top' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst0/readslave/U418/C ReadMasterSlave_inst0/readslave/U418/Y ReadMasterSlave_inst0/readslave/U69/A ReadMasterSlave_inst0/readslave/U69/Y ReadMasterSlave_inst0/readslave/seen_rready_reg/CLK ReadMasterSlave_inst0/readslave/seen_rready_reg/Q ReadMasterSlave_inst0/readslave/U565/B ReadMasterSlave_inst0/readslave/U565/Y ReadMasterSlave_inst0/readslave/U419/A ReadMasterSlave_inst0/readslave/U419/Y ReadMasterSlave_inst0/readslave/U76/A ReadMasterSlave_inst0/readslave/U76/Y 
+Information: Timing loop detected. (OPT-150)
+	ReadMasterSlave_inst1/readslave/U418/C ReadMasterSlave_inst1/readslave/U418/Y ReadMasterSlave_inst1/readslave/U70/A ReadMasterSlave_inst1/readslave/U70/Y ReadMasterSlave_inst1/readslave/seen_rready_reg/CLK ReadMasterSlave_inst1/readslave/seen_rready_reg/Q ReadMasterSlave_inst1/readslave/U566/B ReadMasterSlave_inst1/readslave/U566/Y ReadMasterSlave_inst1/readslave/U419/A ReadMasterSlave_inst1/readslave/U419/Y ReadMasterSlave_inst1/readslave/U79/A ReadMasterSlave_inst1/readslave/U79/Y 
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/seen_rready_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst0/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Warning: Disabling timing arc between pins 'CLK' and 'Q' on cell 'ReadMasterSlave_inst1/readslave/sync_index_reg'
+         to break a timing loop. (OPT-314)
+Library(s) Used:
+
+    gscl45nm (File: /home/ecelrc/students/myang3/vlsi1_24/lab3/gscl45nm.db)
+
+Number of ports:                         7296
+Number of nets:                        104117
+Number of cells:                        97568
+Number of combinational cells:          84938
+Number of sequential cells:             12425
+Number of macros/black boxes:               0
+Number of buf/inv:                      27208
+Number of references:                       5
+
+Combinational area:             206584.918506
+Buf/Inv area:                    45451.703915
+Noncombinational area:           94627.773015
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                301212.691521
+Total area:                 undefined
